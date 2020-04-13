@@ -188,6 +188,8 @@
     <Content Include="images\img3.png" />
     <Content Include="images\left1.png" />
     <Content Include="images\moov.png" />
+    <Content Include="images\register.jpg" />
+    <Content Include="images\registericon.png" />
     <Content Include="images\right1.png" />
     <Content Include="images\t1.jpg" />
     <Content Include="images\t2.jpg" />
@@ -212,6 +214,7 @@
     <Content Include="Models\Model1.edmx.diagram">
       <DependentUpon>Model1.edmx</DependentUpon>
     </Content>
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
