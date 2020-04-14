@@ -1094,20 +1094,28 @@ a.w3l-cont:hover {
     background:#6288f1;
     padding: 3em;
 }
-.agileinfo_mail_grid_right input[type="text"], .agileinfo_mail_grid_right input[type="email"], .agileinfo_mail_grid_right textarea {
-    outline: none;
-    padding: 10px;
-    font-size: 1em;
-    color: #555;
-    width: 100%;
-    border: 1px solid #E6E6E6;
-}
+	.agileinfo_mail_grid_right input[type="text"], .agileinfo_mail_grid_right input[type="email"], .agileinfo_mail_grid_right textarea, agileinfo_mail_grid_right input[type="password"] {
+		outline: none;
+		padding: 10px;
+		font-size: 1em;
+		color: #555;
+		width: 100%;
+		border: 1px solid #E6E6E6;
+	}
 .agileinfo_mail_grid_right textarea {
     min-height: 180px;
     width: 100% !important;
     resize: none;
 	margin:1.5em 0 0;
 }
+	.agileinfo_mail_grid_right input[type="password"] {
+		outline: none;
+		padding: 10px;
+		font-size: 1em;
+		color: #555;
+		width: 100%;
+		border: 1px solid #E6E6E6;
+	}
 .agileinfo_mail_grid_right input[type="submit"] {
     outline: none;
     padding: .8em 3em;

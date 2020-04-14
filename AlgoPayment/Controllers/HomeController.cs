@@ -21,8 +21,10 @@ namespace AlgoPayment.Controllers
             {
                 using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                 {
-                    if (!IsUserExist(data.Mobile))
+                    if (!IsUserExist(data.SocialId))
                     {
+                        data.CreatedDate = DateTime.Now;
+
                         db.UserDetails.Add(data);
                         db.SaveChanges();
                     }
@@ -35,7 +37,7 @@ namespace AlgoPayment.Controllers
         {
             using (eponym_app_licenseEntities db =new eponym_app_licenseEntities())
             {
-                return db.UserDetails.Count(x => x.Mobile == id) > 0;
+                return db.UserDetails.Count(x => x.SocialId == id) > 0;
             }
         }
         /// <summary>
@@ -49,6 +51,7 @@ namespace AlgoPayment.Controllers
             {
                 using (eponym_app_licenseEntities db= new eponym_app_licenseEntities())
                 {
+                    user.CreatedDate = DateTime.Now;
                     db.UserDetails.Add(user);
                     db.SaveChanges();
                 }
