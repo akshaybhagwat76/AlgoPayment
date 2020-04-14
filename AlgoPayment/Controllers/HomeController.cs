@@ -1,8 +1,13 @@
-﻿using AlgoPayment.Models;
+﻿using AlgoPayment.Helpers;
+using AlgoPayment.Models;
 using AlgoPayment.VideModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 
@@ -46,24 +51,122 @@ namespace AlgoPayment.Controllers
             return View();
         }
 
-        public ActionResult PayNow(PaymentModel payment)
+        [HttpPost]
+        public ActionResult UserPage(PaymentModel payment)
+        {
+            RemotePost myremotepost = new RemotePost();
+            string key = "gtKFFx";
+            string salt = "eCwWELxi";
+
+            //posting all the parameters required for integration.
+
+            myremotepost.Url = "https://test.payu.in/_payment";
+            myremotepost.Add("key", "gtKFFx");
+            string txnid =Generatetxnid();
+            myremotepost.Add("txnid", txnid);
+            myremotepost.Add("amount", "750");
+            myremotepost.Add("productinfo", "Apple");
+            myremotepost.Add("firstname", "akshay");
+            myremotepost.Add("phone", "7383323830");
+            myremotepost.Add("email", "akshaybhagwat76@gmail.com");
+            myremotepost.Add("surl", System.Web.HttpContext.Current.Request.Url.Scheme + "://" + System.Web.HttpContext.Current.Request.Url.Authority + "/Return/Return");//Change the success url here depending upon the port number of your local system.
+            myremotepost.Add("furl", System.Web.HttpContext.Current.Request.Url.Scheme + "://" + System.Web.HttpContext.Current.Request.Url.Authority + "/Return/Return");//Change the failure url here depending upon the port number of your local system.
+            //myremotepost.Add("service_provider", "");
+            //string hashString = key + "|" + txnid + "|" + "akshaybhagwat76@gmail.com" + " | " + "Apple" + "|" + "Apple" + "|" + "Apple@gmail.com" + "|||||||||||" + salt;
+            string hashString = "3Q5c3q|2590640|3053.00|OnlineBooking|vimallad|ladvimal@gmail.com|||||||||||"+ salt;
+            string hash = Generatehash512(hashString);
+            myremotepost.Add("hash", hash);
+
+            return Content(myremotepost.Post(),System.Net.Mime.MediaTypeNames.Text.Html);
+
+            //RemotePost myremotepost = new RemotePost();
+            //NameValueCollection allKeys = ConfigurationManager.AppSettings;
+
+            //using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            //{
+            //    var user = db.UserDetails.Find(payment.CustomerID);
+
+            //    myremotepost.Url = "https://test.payu.in/_payment";
+            //    myremotepost.Add("key", allKeys["key"]);
+            //    string txnid = new Common().Generatetxnid();
+            //    myremotepost.Add("txnid", txnid);
+            //    myremotepost.Add("amount", "750");
+            //    myremotepost.Add("productinfo", payment.DeviceID);
+            //    myremotepost.Add("firstname", user.Name);
+            //    myremotepost.Add("phone", user.Mobile);
+            //    myremotepost.Add("email", user.emailid);
+            //    myremotepost.Add("surl", System.Web.HttpContext.Current.Request.Url.Scheme + "://" + System.Web.HttpContext.Current.Request.Url.Authority + "/Return/Return");//Change the success url here depending upon the port number of your local system.
+            //    myremotepost.Add("furl", System.Web.HttpContext.Current.Request.Url.Scheme + "://" + System.Web.HttpContext.Current.Request.Url.Authority + "/Return/Return");//Change the failure url here depending upon the port number of your local system.
+            //    myremotepost.Add("service_provider", "");
+            //    string hashString = allKeys["key"] + "|" + txnid + "|" + 750 + "|" + payment.DeviceID + "|" + user.Name +","+user.Id.ToString() + "|" + user.emailid + "|||||||||||" + allKeys["SALT"];
+            //    //string hashString = "3Q5c3q|2590640|3053.00|OnlineBooking|vimallad|ladvimal@gmail.com|||||||||||mE2RxRwx";
+            //    string hash = new Common().Generatehash512(hashString);
+            //    myremotepost.Add("hash", hash);
+
+            //    myremotepost.Post();
+            //}
+
+
+            //bool isWeekDay = false;
+            //if (payment != null)
+            //{
+            //    using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            //    {
+            //        var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == payment.CustomerID);
+            //        if (algo == null)
+            //        {
+            //            algo = new AlgoExpiry();
+            //            isWeekDay = true;
+            //            algo.CustomerID = payment.CustomerID;
+            //            algo.DeviceID = payment.DeviceID;
+            //            algo.DateExpiry = DateTime.Now.AddDays(7).ToShortDateString();
+            //            algo.AppName = "Default";
+            //            algo.MaxUser = "1";
+            //            db.AlgoExpiries.Add(algo);
+            //        }
+            //        else
+            //        {
+            //            algo.DateExpiry = DateTime.Now.AddMonths(1).ToShortDateString();
+            //        }
+            //        db.SaveChanges();
+            //    }
+            //}
+            //return Json(myremotepost.Post(), JsonRequestBehavior.AllowGet);
+        }
+        public string Generatehash512(string text)
         {
 
-            if (payment != null)
+            byte[] message = Encoding.UTF8.GetBytes(text);
+
+            UnicodeEncoding UE = new UnicodeEncoding();
+            byte[] hashValue;
+            SHA512Managed hashString = new SHA512Managed();
+            string hex = "";
+            hashValue = hashString.ComputeHash(message);
+            foreach (byte x in hashValue)
             {
-                using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
-                {
-                    
-                }
+                hex += String.Format("{0:x2}", x);
             }
-            return RedirectToAction("Index");
+            return hex;
+
         }
 
+
+        public string Generatetxnid()
+        {
+
+            Random rnd = new Random();
+            string strHash = Generatehash512(rnd.ToString() + DateTime.Now);
+            string txnid1 = strHash.ToString().Substring(0, 20);
+
+            return txnid1;
+        }
+        [HttpGet]
         public ActionResult Logout()
         {
             Session.Contents.RemoveAll();
             Session.Clear();
-            return View("Index");
+            return Json("Cleared", JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -136,18 +239,53 @@ namespace AlgoPayment.Controllers
             return RedirectToAction("Index");
         }
 
-        public ActionResult About()
+        #region Other methods
+        public class RemotePost
         {
-            ViewBag.Message = "Your application description page.";
+            private System.Collections.Specialized.NameValueCollection Inputs = new System.Collections.Specialized.NameValueCollection();
 
-            return View();
+
+            public string Url = "";
+            public string Method = "post";
+            public string FormName = "form1";
+
+            public void Add(string name, string value)
+            {
+                Inputs.Add(name, value);
+            }
+
+            public string Post()
+            {
+                string paystring = string.Empty;
+                System.Web.HttpContext.Current.Response.Clear();
+                paystring += "<html><head>";
+
+                System.Web.HttpContext.Current.Response.Write("<html><head>");
+
+                System.Web.HttpContext.Current.Response.Write(string.Format("</head><body onload=\"document.{0}.submit()\">", FormName));
+                paystring += string.Format("</head><body onload=\"document.{0}.submit()\">", FormName);
+
+                System.Web.HttpContext.Current.Response.Write(string.Format("<form name=\"{0}\" method=\"{1}\" action=\"{2}\" >", FormName, Method, Url));
+                paystring += string.Format("<form name=\"{0}\" method=\"{1}\" action=\"{2}\" >", FormName, Method, Url);
+
+                for (int i = 0; i < Inputs.Keys.Count; i++)
+                {
+                    paystring += string.Format("<input name=\"{0}\" type=\"hidden\" value=\"{1}\">", Inputs.Keys[i], Inputs[Inputs.Keys[i]]);
+
+                    System.Web.HttpContext.Current.Response.Write(string.Format("<input name=\"{0}\" type=\"hidden\" value=\"{1}\">", Inputs.Keys[i], Inputs[Inputs.Keys[i]]));
+                }
+                paystring += "</form>";
+
+                System.Web.HttpContext.Current.Response.Write("</form>");
+                paystring += "</body></html>";
+
+                System.Web.HttpContext.Current.Response.Write("</body></html>");
+
+                System.Web.HttpContext.Current.Response.End();
+                return paystring;
+            }
         }
 
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
-        }
+        #endregion
     }
 }
