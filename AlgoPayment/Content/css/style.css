@@ -626,19 +626,19 @@ p.sub-p2 {
 .wthree-slid-right p {
     color: #eae9e9;
 }
-a.w3l-cont {
-    font-size: 1.4em;
-    letter-spacing: 2px;
-    color: #fff;
-    background: #000;
-    padding: .6em 1em;
-    display: inline-block;
-    margin: 2.8em 0 0;
-	transition:0.5s all;
-	-webkit-transition:0.5s all;
-	-moz-transition:0.5s all;
-	-o-transition:0.5s all;
-	-ms-transition:0.5s all;
+a.w3l-cont, input[type="button"].w3l-cont {
+	font-size: 1.4em;
+	letter-spacing: 2px;
+	color: #fff;
+	background: #000;
+	padding: .6em 1em;
+	display: inline-block;
+	margin: 2.8em 0 0;
+	transition: 0.5s all;
+	-webkit-transition: 0.5s all;
+	-moz-transition: 0.5s all;
+	-o-transition: 0.5s all;
+	-ms-transition: 0.5s all;
 }
 a.w3l-cont:hover {
     background:#ea8116;

@@ -1,10 +1,13 @@
-﻿<!--Author: W3layouts
-Author URL: http://w3layouts.com
-License: Creative Commons Attribution 3.0 Unported
-License URL: http://creativecommons.org/licenses/by/3.0/
--->
+﻿@using AlgoPayment.VideModel;
 @{
     Layout = null;
+
+    UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
+    if (user == null)
+    {
+        Response.Redirect("~/Home/Index");
+        return;
+    }
 }
 <!DOCTYPE HTML>
 <html lang="zxx">
@@ -58,13 +61,11 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                 <div class="w3l-nav">
                     <ul class="nav navbar-nav link-effect">
                         <li class="active"><a href="#">Home</a></li>
-                        <li><a href="#register" class="scroll">Register</a></li>
                         <li><a href="#about" class="scroll">About Us</a></li>
                         <li><a href="#services" class="scroll">Services</a></li>
-                        <li>@*<a href="#team" class="scroll">Team</a>*@</li>
                         <li><a href="#gallery" class="scroll">Gallery</a></li>
                         <li><a href="#contact" class="scroll">Contact Us</a></li>
-                        <li><a href="#login" class="scroll">Login</a></li>
+                        <li><a href="#login" class="scroll">@user.emailid</a></li>
 
                     </ul>
                 </div>
@@ -147,40 +148,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
             <!-- //Modal content-->
         </div>
     </div>
-    <!-- //Modal1 -->
-    <div class="mail" id="register">
-        <div class="container">
-            <h3 class="w3l-title"><span>Register</span></h3>
-            <div id="fb-root"></div>
-            <div class="mail-w3l-agile">
 
-                <div class="col-md-6 col-sm-6 agileinfo_mail_grid_right">
-                    <h3>Register</h3>
-                    <form action="/Home/AddUser" method="post">
-                        <div class="wthree_contact_left_grid">
-                            <input type="text" name="Name" placeholder="Name" required="">
-                            <input type="email" name="emailid" placeholder="Email" required="">
-                            <input type="text" name="City" placeholder="City" required=""><br /><br />
-                            <input type="text" name="State" placeholder="State" required=""><br /><br />
-                            <input type="password" size="15" maxlength="20" pattern="^(?=.*\d)(?=.*[a-zA-Z]).{4,10}$" name="Password" placeholder="Password" required=""><br /><br />
-                            <input type="text" name="Mobile" placeholder="Phone Number" required="">
-                        </div><br />
-                        <button class="loginBtn loginBtn--facebook" onclick="fb_login()">
-                            Login with Facebook
-                        </button>
-
-                        <button class="loginBtn loginBtn--google" onclick="googlelogin()">
-                            Login with Google
-                        </button>
-                        <input type="submit" value="Submit">
-                    </form>
-                </div>
-
-                <div class="clearfix"> </div>
-            </div>
-        </div>
-    </div>
-    <!-- //banner section -->
     <!-- about -->
     <div class="about" id="about">
         <div class="container">
@@ -372,23 +340,34 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 
         <div class="mail" id="login">
             <div class="container">
-                <h3 class="w3l-title"><span>Login</span> </h3>
-                <div class="mail-w3l-agile">
+                <h3 class="w3l-title"><span>Hi @user.Name </span>   </h3>
+               
 
+                <div class="mail-w3l-agile">
+                  
                     <div class="col-md-6 col-sm-6 agileinfo_mail_grid_right">
-                        <h3>Get In Touch</h3>
-                        <form >
+                        <h3>Extend Validity</h3>
+                        <form id="paymentForm">
+
                             <div class="wthree_contact_left_grid">
-                                <input type="email" name="emailid" id="txtEmail" placeholder="Email" required>
-                                <input type="password" name="Password" id="txtPassword" size="15" maxlength="20" pattern="^(?=.*\d)(?=.*[a-zA-Z]).{4,10}$" placeholder="Password" required>
+                                <input type="text" min="5" @(Session["deviceID"] != null ? "disabled='disabled'" : "") value="@Session["deviceId"]" name="DeviceID" id="txtEmail" placeholder="Device ID" required="">
+                                <input type="text" disabled value="750" name="Price" required="">
+                                <input type="hidden" value="@Session["userId"]" name="CustomerID" />
                             </div>
-                            <input type="button" id="btnLogin" class="w3l-cont scroll"  value="Login">
+                            <input type="button" id="btnPay" class="w3l-cont scroll" value="Pay Now">
+                            @*<a class="w3l-cont scroll" href="/Home/Logout">Logout</a>*@
+
                         </form>
+                       <a class="w3l-cont scroll" href="/Home/Logout">Logout</a>
+
+                        @*@Html.ActionLink("Logout", "Logout", "Home",
+                            new { @class = "w3l-cont scroll" })*@
                     </div>
                     <div class="clearfix"> </div>
                 </div>
             </div>
         </div>
+
         <!-- footer -->
         <div class="footer-bot">
             <div class="container">
@@ -556,7 +535,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
             $('#btnLogin').click(function () {
                 var data = {
                     emailid: $("#txtEmail").val(),
-                    Password: $("#txtPassword").val()
+                    Password: $("txtPassword").val()
                 }
                 if (data != null) {
                     $.ajax({
@@ -567,9 +546,6 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                             if (data != null) {
                                 if (data.status == "Failed") {
                                     toastr.error('Invalid credentials');
-                                }
-                                else {
-                                    location.href="/Home/UserPage"
                                 }
                             }
                         }
@@ -660,5 +636,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
         <!--//gallery-js -->
         <!-- //js files -->
 
+
+    </div>
 </body>
 </html>
