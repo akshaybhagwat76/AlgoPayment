@@ -19,7 +19,7 @@ namespace AlgoPayment.Controllers
         }
 
         [HttpPost]
-        public void Return(FormCollection form)
+        public ActionResult Return(FormCollection form)
         {
             try
             {
@@ -51,7 +51,8 @@ namespace AlgoPayment.Controllers
 
                     if (merc_hash != form["hash"])
                     {
-                        Response.Write("Hash value did not matched");
+
+                        return View("Fail");
 
                     }
                     else
@@ -59,12 +60,14 @@ namespace AlgoPayment.Controllers
                         order_id = Request.Form["txnid"];
                         using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                         {
-                            var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == Convert.ToInt32(Request.Form["udf1"]));
+                            var nameWithID = Request.Form["firstname"];
+                            var userId = Convert.ToInt32(nameWithID.Split(',')[1]);
+                            var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID ==userId);
                             if (algo == null)
                             {
                                 algo = new AlgoExpiry();
-                                algo.CustomerID = Convert.ToInt32(Request.Form["udf1"]);
-                                algo.DeviceID = Request.Form["deviceId"];
+                                algo.CustomerID = userId;
+                                algo.DeviceID = Request.Form["productinfo"];
                                 algo.DateExpiry = DateTime.Now.AddDays(7).ToShortDateString();
                                 algo.AppName = "Default";
                                 algo.MaxUser = "1";
@@ -76,8 +79,7 @@ namespace AlgoPayment.Controllers
                             }
                             db.SaveChanges();
                         }
-                        ViewData["Message"] = "Status is successful. Hash value is matched";
-                        Response.Write("<br/>Hash value matched");
+                        return View("Success");
 
                         //Hash value did not matched
                     }
@@ -86,21 +88,26 @@ namespace AlgoPayment.Controllers
 
                 else
                 {
-
-                    Response.Write("Hash value did not matched");
-                    // osc_redirect(osc_href_link(FILENAME_CHECKOUT, 'payment' , 'SSL', null, null,true));
-
+                    return View("Fail");
                 }
             }
 
             catch (Exception ex)
             {
-                Response.Write("<span style='color:red'>" + ex.Message + "</span>");
+                return View("Fail");
 
             }
 
 
         }
 
+        public ActionResult Fail()
+        {
+            return View();
+        }
+        public ActionResult Success()
+        {
+            return View();
+        }
     }
 }

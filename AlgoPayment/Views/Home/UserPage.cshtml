@@ -354,9 +354,10 @@
                                 <input type="text" disabled value="750" name="Price" id="txtPrice" required="">
                                 <input type="hidden" value="@Session["userId"]" id="txtCustomerID" name="CustomerID" />
                             </div>
-                            <input type="button" id="btnPay" class="w3l-cont scroll" value="Pay Now">
-                            @*<a class="w3l-cont scroll" href="/Home/Logout">Logout</a>*@
+                            @*<input type="submit" class="w3l-cont scroll" value="Pay Now">*@
+                            <input type="button" id="btnPay" class="w3l-cont scroll" value="Pay Now" />
 
+                            @*<a class="w3l-cont scroll" href="/Home/Logout">Logout</a>*@
                         </form>
                         <a class="w3l-cont scroll" id="btnLogout" href="/Home/Logout">Logout</a>
 
@@ -393,8 +394,10 @@
                     &copy; @DateTime.Now.Year AFL Writing Services. All Rights Reserved | Design by  <a href="http://amibrokeralgo.in/Home/Index"> AFL Writing Services</a><br />
                     All the strategies built and delivered to you must be thoroughly checked by you before trading in live market, We will not be responsible for any kind of profit/loss occurred by using the AFL or Algo/Robo application.
                 </p>
+                @Html.Hidden("userInfo", Session["userInfo"])
             </div>
         </div>
+
         <div id="payu"></div>
         <!-- //footer -->
         <!-- js files -->
@@ -407,6 +410,7 @@
         <script src="~/Scripts/js/responsiveslides.min.js"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.4.2/sha.js"></script>
         <script>
             var OAUTHURL = 'https://accounts.google.com/o/oauth2/auth?';
             var VALIDURL = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=';
@@ -432,37 +436,61 @@
                     }
                 });
             });
+             function getRandomInt() {
+                  return Math.floor(100000 + Math.random() * 900000);
+             }
 
             $("#btnPay").click(function () {
-                debugger
-                var data = {
-                    DeviceID: $("#txtDeviceID").val(),
-                    CustomerID: $("#txtCustomerID").val(),
-                    Price: $("#txtPrice").val()
-                }
-                //$.ajax({
-                //    url: '/Home/PayNow',
-                //    type: 'POST',
-                //    data: { payment: data },
-                //    success: function (data) {
-                //        debugger
-                //        if (data != null) {
-                //            if (data.status == "Failed") {
-                //                toastr.error('Invalid credentials');
-                //            }
-                //        }
-                //    }
-                //})
-                debugger
-                $.post('/Home/UserPage', { payment: data }, function (data) {
-                    debugger
-                    $("body").empty();
-   $("body").append(data);
-                    //$("#payu").empty();
-                    //$("#payu").append(data);
-                    	
-$('form[name="form1"]').submit();
-                });
+                var user = JSON.parse($("#userInfo").val());
+
+                var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
+                var uid = getRandomInt();
+                var totalPrice = '750';
+                var productInfo = $("#txtDeviceID").val();
+                var recipient_name = user.Name + ','+user.Id ;
+                var email = user.emailid;
+                var merchantSalt = '@System.Configuration.ConfigurationManager.AppSettings["SALT"]';
+                var hashString = merchantKey + '|' + uid + '|' + totalPrice + '|' + productInfo + '|' + recipient_name + '|' + email + '|||||||||||' + merchantSalt;
+                 var shaObj = new jsSHA("SHA-512", "TEXT");
+                shaObj.update(hashString);
+                var hash = shaObj.getHash("HEX");
+
+                var key1 = $('<input></input>').attr('type', 'hidden').attr('name', "key").val(merchantKey);
+                var key2 = $('<input></input>').attr('type', 'hidden').attr('name', "txnid").val(uid);
+
+                var key3 = $('<input></input>').attr('type', 'hidden').attr('name', "amount").val(totalPrice);
+
+                var key4 = $('<input></input>').attr('type', 'hidden').attr('name', "productinfo").val(productInfo);
+
+                var key5 = $('<input></input>').attr('type', 'hidden').attr('name', "firstname").val(recipient_name);
+
+                var key6 = $('<input></input>').attr('type', 'hidden').attr('name', "email").val(email);
+
+                var key7 = $('<input></input>').attr('type', 'hidden').attr('name', "phone").val(user.Mobile);
+
+                var key8 = $('<input></input>').attr('type', 'hidden').attr('name', "surl").val(window.location.origin+'/Return/Return');
+
+                var key9 = $('<input></input>').attr('type', 'hidden').attr('name', "furl").val(window.location.origin+'/Return/Return');
+
+                var key10 = $('<input></input>').attr('type', 'hidden').attr('name', "hash").val(hash);
+
+                var key11 = $('<input></input>').attr('type', 'hidden').attr('name', "service_provider").val();
+
+
+                var form = $('<form/></form>');
+
+                form.attr("id", "payuform");
+
+                form.attr("action", '@System.Configuration.ConfigurationManager.AppSettings["PAYU_BASE_URL"]');
+
+                form.attr("method", "POST");
+
+                form.attr("style", "display:none;");
+
+                form.append(key1, key2, key3, key4, key5, key6, key7, key8, key9, key10, key11);
+
+                $("body").append(form);
+                form.submit();
             });
             // You can also use "$(window).load(function() {"
             $(function () {
