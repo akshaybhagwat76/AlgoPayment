@@ -350,19 +350,15 @@
                         <form id="paymentForm">
 
                             <div class="wthree_contact_left_grid">
+                                <label>Device ID</label>
                                 <input type="text" min="5" @(Session["deviceID"] != null ? "disabled='disabled'" : "") value="@Session["deviceId"]" name="DeviceID" id="txtDeviceID" placeholder="Device ID" required="">
+                                <label>Amount Payable</label>
                                 <input type="text" disabled value="750" name="Price" id="txtPrice" required="">
                                 <input type="hidden" value="@Session["userId"]" id="txtCustomerID" name="CustomerID" />
                             </div>
-                            @*<input type="submit" class="w3l-cont scroll" value="Pay Now">*@
                             <input type="button" id="btnPay" class="w3l-cont scroll" value="Pay Now" />
-
-                            @*<a class="w3l-cont scroll" href="/Home/Logout">Logout</a>*@
                         </form>
                         <a class="w3l-cont scroll" id="btnLogout" href="/Home/Logout">Logout</a>
-
-                        @*@Html.ActionLink("Logout", "Logout", "Home",
-                            new { @class = "w3l-cont scroll" })*@
                     </div>
                     <div class="clearfix"> </div>
                 </div>
@@ -441,6 +437,10 @@
              }
 
             $("#btnPay").click(function () {
+                if ($("#txtDeviceID").val() == null || $("#txtDeviceID").val() == '') {
+                    toastr.error('Device id required');
+                    return;
+                }
                 var user = JSON.parse($("#userInfo").val());
 
                 var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
@@ -511,147 +511,7 @@
                 });
 
             });
-            function googlelogin() {
-                var win = window.open(_url, "windowname1", 'width=800, height=600');
-                var pollTimer = window.setInterval(function () {
-                    try {
-                        access_token = win.document.URL;
-                        if (win.document.URL.indexOf(REDIRECT) != -1) {
-                            window.clearInterval(pollTimer);
-                            var url = win.document.URL;
-                            acToken = GoogleUserProfile(url, 'access_token');
-                            tokenType = GoogleUserProfile(url, 'token_type');
-                            expiresIn = GoogleUserProfile(url, 'expires_in');
-                            win.close();
-                            validateGoogleToken(acToken);
-                        }
-                    }
-                    catch (e) {
-
-                    }
-                }, 500);
-            }
-
-            function GoogleUserProfile(url, name) {
-                namename = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-                var regexS = "[\\#&]" + name + "=([^&#]*)";
-                var regex = new RegExp(regexS);
-                var results = regex.exec(url);
-                if (results == null)
-                    return "";
-                else
-                    return results[1];
-            }
-
-            function validateGoogleToken(token) {
-                getGoogleUserInfo();
-                $.ajax(
-                    {
-                        url: VALIDURL + token,
-                        data: null,
-                        success: function (responseText) {
-                        },
-                    });
-            }
-
-            function getGoogleUserInfo() {
-                $.ajax({
-                    url: 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' + acToken,
-                    data: null,
-                    success: function (resp) {
-                        user = resp;
-                        var data = {
-                            Name: user.name,
-                            emailid: user.email,
-                            SocialId: user.id
-                        }
-                        if (data != null) {
-                            $.ajax({
-                                url: '/Home/SocialLogin',
-                                type: 'POST',
-                                data: data,
-                                success: function (data) {
-                                    user = null;
-                                    location.reload();
-                                }
-                            })
-                        }
-                    },
-                })
-            }
-
-            window.fbAsyncInit = function () {
-                FB.init({
-                    appId: '678780189541744',
-                    oauth: true,
-                    status: true, // check login status
-                    cookie: true, // enable cookies to allow the server to access the session
-                    xfbml: true // parse XFBML
-                });
-            };
-
-            function fb_login() {
-                FB.login(function (response) {
-                    if (response.authResponse) {
-                        // Get and display the user profile data
-                        getFbUserData();
-                    } else {
-                    }
-                }, { scope: 'email' });
-            }
-
-            $('#btnLogin').click(function () {
-                var data = {
-                    emailid: $("#txtEmail").val(),
-                    Password: $("txtPassword").val()
-                }
-                if (data != null) {
-                    $.ajax({
-                        url: '/Home/Login',
-                        type: 'POST',
-                        data: data,
-                        success: function (data) {
-                            if (data != null) {
-                                if (data.status == "Failed") {
-                                    toastr.error('Invalid credentials');
-                                }
-                            }
-                        }
-                    })
-                }
-            });
-
-
-            function getFbUserData() {
-                FB.api('/me', { locale: 'en_US', fields: 'id,first_name,last_name,email,link,gender,locale,picture' },
-                    function (response) {
-                        user = response;
-                        var data = {
-                            Name: user.first_name + " " + user.last_name,
-                            emailid: user.email,
-                            SocialId: user.id
-                        }
-                        if (data != null) {
-                            $.ajax({
-                                url: '/Home/SocialLogin',
-                                type: 'POST',
-                                data: data,
-                                success: function (data) {
-                                    user = null;
-                                    location.reload();
-                                }
-                            })
-                        }
-                    });
-            }
-
-            (function () {
-                var e = document.createElement('script');
-                e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
-                e.async = true;
-                document.getElementById('fb-root').appendChild(e);
-            }());
-
+          
         </script>
         <!-- //responsiveslider -->
         <!-- stats -->

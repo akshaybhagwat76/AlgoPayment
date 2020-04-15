@@ -525,7 +525,14 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                                 data: data,
                                 success: function (data) {
                                     user = null;
-                                    location.reload();
+                                     if (data != null) {
+                                if (data.status == "Failed") {
+                                    toastr.error('Invalid credentials');
+                                }
+                                else {
+                                    location.href="/Home/UserPage"
+                                }
+                            }
                                 }
                             })
                         }
@@ -594,7 +601,14 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                                 data: data,
                                 success: function (data) {
                                     user = null;
-                                    location.reload();
+                                      if (data != null) {
+                                if (data.status == "Failed") {
+                                    toastr.error('Invalid credentials');
+                                }
+                                else {
+                                    location.href="/Home/UserPage"
+                                }
+                            }
                                 }
                             })
                         }

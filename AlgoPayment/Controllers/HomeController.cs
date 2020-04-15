@@ -44,6 +44,8 @@ namespace AlgoPayment.Controllers
                     }
                     else
                     {
+                        Session["userInfo"] = JsonConvert.SerializeObject(user);
+                        Session["userId"] = user.Id;
                         Session["existingUser"] = false;
                     }
                 }
@@ -101,10 +103,36 @@ namespace AlgoPayment.Controllers
                       .Substring(0, 10);
                         db.UserDetails.Add(data);
                         db.SaveChanges();
+                        int newCustomer = data.Id;
+                        var user = db.UserDetails.Find(newCustomer);
+                        if (user != null)
+                        {
+                            Session["UserCredentials"] = new UserCredentials()
+                            { emailid = user.emailid, Id = user.Id, Name = user.Name, Mobile = user.Mobile, City = user.City, State = user.State, SocialId = user.SocialId, Password = user.Password };
+                            return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(new { data = true, status = "Failed" }, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        var user = db.UserDetails.Where(x => x.SocialId == data.SocialId).FirstOrDefault();
+                        if (user != null)
+                        {
+                            Session["UserCredentials"] = new UserCredentials()
+                            { emailid = user.emailid, Id = user.Id, Name = user.Name, Mobile = user.Mobile, City = user.City, State = user.State, SocialId = user.SocialId, Password = user.Password };
+                            return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return Json(new { data = true, status = "Failed" }, JsonRequestBehavior.AllowGet);
+                        }
                     }
                 }
             }
-            return Json("Added", JsonRequestBehavior.AllowGet);
+            return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
         }
 
         public bool IsUserExist(string id)
