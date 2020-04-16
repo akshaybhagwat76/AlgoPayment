@@ -60,7 +60,7 @@
             <div class="collapse navbar-collapse" id="myNavbar">
                 <div class="w3l-nav">
                     <ul class="nav navbar-nav link-effect">
-                        <li class="active"><a href="#">Home</a></li>
+                        <li class="active"><a href="#login" class="scroll">Home</a></li>
                         <li><a href="#about" class="scroll">About Us</a></li>
                         <li><a href="#services" class="scroll">Services</a></li>
                         <li><a href="#gallery" class="scroll">Gallery</a></li>
@@ -84,6 +84,33 @@
         </div>
         <div class="clearfix"></div>
     </div>
+    <div class="mail" id="login">
+        <div class="container">
+            <h3 class="w3l-title"><span>Hi @user.Name </span>   </h3>
+
+
+            <div class="mail-w3l-agile">
+
+                <div class="col-md-6 col-sm-6 agileinfo_mail_grid_right">
+                    <h3>Extend Validity</h3>
+                    <form id="paymentForm">
+
+                        <div class="wthree_contact_left_grid">
+                            <label>Device ID</label>
+                            <input type="text" min="5" @(Session["deviceID"] != null ? "disabled='disabled'" : "") value="@Session["deviceId"]" name="DeviceID" id="txtDeviceID" placeholder="Device ID" required="">
+                            <label>Amount Payable</label><br /><br />
+                            <input type="text" disabled value="750" name="Price" id="txtPrice" required="">
+                            <input type="hidden" value="@Session["userId"]" id="txtCustomerID" name="CustomerID" />
+                        </div>
+                        <input type="button" id="btnPay" style=" margin-left: 9em;" class="w3l-cont scroll" value="Pay Now" />
+                    </form>
+                    <a class="w3l-cont scroll" id="btnLogout" href="/Home/Logout">Logout</a>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+        </div>
+    </div>
+
     <!-- //navigation -->
     <!-- banner section -->
     <div class="banner-slider">
@@ -201,7 +228,7 @@
                     </div>
                     <div class="wthree-services-info">
                         <h5>Algo Software Development </h5>
-                        <p>Algo/Robo software development and integration with Amibroker.</p>
+                        <div style="width: 537px;"><p>Algo/Robo software development and integration with Amibroker.</p></div>
                     </div>
                 </div>
                 <div class="wthree-services-grid w3l-agile">
@@ -243,60 +270,6 @@
                         </li>
                         <li>
                             <div class="gallery-grid1">
-                                <img src="~/images/g3.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g4.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g5.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g6.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g7.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g8.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
                                 <img src="~/images/g9.jpg" alt=" " class="img-responsive" />
                                 <div class="p-mask">
                                     <h4><span>Online</span> Banking</h4>
@@ -304,6 +277,7 @@
                                 </div>
                             </div>
                         </li>
+
                     </ul>
                 </div>
             </div>
@@ -337,34 +311,6 @@
         </div>
 
         <!-- //mail -->
-
-        <div class="mail" id="login">
-            <div class="container">
-                <h3 class="w3l-title"><span>Hi @user.Name </span>   </h3>
-
-
-                <div class="mail-w3l-agile">
-
-                    <div class="col-md-6 col-sm-6 agileinfo_mail_grid_right">
-                        <h3>Extend Validity</h3>
-                        <form id="paymentForm">
-
-                            <div class="wthree_contact_left_grid">
-                                <label>Device ID</label>
-                                <input type="text" min="5" @(Session["deviceID"] != null ? "disabled='disabled'" : "") value="@Session["deviceId"]" name="DeviceID" id="txtDeviceID" placeholder="Device ID" required="">
-                                <label>Amount Payable</label>
-                                <input type="text" disabled value="750" name="Price" id="txtPrice" required="">
-                                <input type="hidden" value="@Session["userId"]" id="txtCustomerID" name="CustomerID" />
-                            </div>
-                            <input type="button" id="btnPay" class="w3l-cont scroll" value="Pay Now" />
-                        </form>
-                        <a class="w3l-cont scroll" id="btnLogout" href="/Home/Logout">Logout</a>
-                    </div>
-                    <div class="clearfix"> </div>
-                </div>
-            </div>
-        </div>
-
         <!-- footer -->
         <div class="footer-bot">
             <div class="container">
@@ -511,7 +457,7 @@
                 });
 
             });
-          
+
         </script>
         <!-- //responsiveslider -->
         <!-- stats -->

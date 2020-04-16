@@ -44,10 +44,7 @@ namespace AlgoPayment.Controllers
                         merc_hash_string = merc_hash_string + (form[merc_hash_var] != null ? form[merc_hash_var] : "");
 
                     }
-                    Response.Write(merc_hash_string);
                     merc_hash = new Common().Generatehash512(merc_hash_string).ToLower();
-
-
 
                     if (merc_hash != form["hash"])
                     {
@@ -65,19 +62,18 @@ namespace AlgoPayment.Controllers
                             var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID ==userId);
                             if (algo == null)
                             {
-                                algo = new AlgoExpiry();
-                                algo.CustomerID = userId;
-                                algo.DeviceID = Request.Form["productinfo"];
-                                algo.DateExpiry = DateTime.Now.AddDays(7).ToShortDateString();
-                                algo.AppName = "Default";
-                                algo.MaxUser = "1";
+                                algo = new AlgoExpiry() { CustomerID = userId,DeviceID = Request.Form["productinfo"],DateExpiry = DateTime.Now.AddDays(7).ToShortDateString() ,AppName="Default", MaxUser ="1"};
+                                
                                 db.AlgoExpiries.Add(algo);
+                                db.SaveChanges();
+
                             }
                             else
                             {
-                                algo.DateExpiry = DateTime.Now.AddMonths(1).ToShortDateString();
+                                algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry)<DateTime.Now? DateTime.Now.AddMonths(1).ToShortDateString():  Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToShortDateString();
+                                db.SaveChanges();
+
                             }
-                            db.SaveChanges();
                         }
                         return View("Success");
 

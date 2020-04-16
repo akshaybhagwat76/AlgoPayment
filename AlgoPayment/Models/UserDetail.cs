@@ -23,5 +23,6 @@ namespace AlgoPayment.Models
         public string SocialId { get; set; }
         public string Password { get; set; }
         public System.DateTime CreatedDate { get; set; }
+        public bool IsEmailVerified { get; set; }
     }
 }

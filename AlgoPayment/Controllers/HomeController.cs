@@ -73,6 +73,10 @@ namespace AlgoPayment.Controllers
                 using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                 {
                     var user = db.UserDetails.Where(x => x.emailid == data.emailid && x.Password == data.Password).FirstOrDefault();
+                    if (!user.IsEmailVerified)
+                    {
+                        return Json(new { data = "Account not email confirmed", status = "Failed" }, JsonRequestBehavior.AllowGet);
+                    }
                     if (user != null)
                     {
                         Session["UserCredentials"] = new UserCredentials()
@@ -81,7 +85,7 @@ namespace AlgoPayment.Controllers
                     }
                     else
                     {
-                        return Json(new { data = true, status = "Failed" }, JsonRequestBehavior.AllowGet);
+                        return Json(new { data = "Invalid credentials", status = "Failed" }, JsonRequestBehavior.AllowGet);
                     }
                 }
             }
@@ -101,6 +105,7 @@ namespace AlgoPayment.Controllers
                         data.Password = Guid.NewGuid().ToString("N").ToLower()
                       .Replace("1", "").Replace("o", "").Replace("0", "")
                       .Substring(0, 10);
+                        data.IsEmailVerified = true;
                         db.UserDetails.Add(data);
                         db.SaveChanges();
                         int newCustomer = data.Id;
@@ -149,15 +154,41 @@ namespace AlgoPayment.Controllers
         /// <returns></returns>
         public ActionResult AddUser(UserDetail user)
         {
+            bool Status = false;
+            string message = "";
             if (user != null)
             {
                 using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                 {
                     user.CreatedDate = DateTime.Now;
                     db.UserDetails.Add(user);
-                    db.SaveChanges();
+                    if (1 == db.SaveChanges())
+                    {
+                        var messagedata = new
+                        {
+                            email = user.emailid,
+                            url = System.Web.HttpContext.Current.Request.Url.Scheme + "://" + System.Web.HttpContext.Current.Request.Url.Authority,
+                            token = System.Web.HttpContext.Current.Server.UrlEncode(Security.Encrypt(user.Id.ToString()))
+                        };
+
+                        MailManager mm = new MailManager();
+                        String exMessage = mm.SendMail(user.emailid, Messages.ACCOUNT_ACTIVATION, string.Format(Messages.NEW_USERREGISTRATION_MESSAGE, messagedata.email, messagedata.url, messagedata.token));
+                        if ("success" == exMessage)
+                        {
+                            message = "Registration successfully done. Account activation link " +
+               " has been sent to your email id:" + user.emailid;
+                            Status = true;
+                        }
+                        else
+                        {
+                            throw new Exception(exMessage);
+                        }
+                    }
                 }
             }
+            Session["Message"] = message;
+            Session["Status"] = Status;
+
             return RedirectToAction("Index");
         }
 

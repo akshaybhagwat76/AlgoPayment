@@ -9,7 +9,7 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" Nullable="false" />
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="DateExpiry" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="DeviceID" Type="varchar" MaxLength="60" Nullable="false" />
           <Property Name="CustomerID" Type="int" Nullable="false" />
@@ -29,6 +29,7 @@
           <Property Name="SocialId" Type="nvarchar(max)" />
           <Property Name="Password" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="CreatedDate" Type="datetime" Nullable="false" />
+          <Property Name="IsEmailVerified" Type="bit" Nullable="false" />
         </EntityType>
         <EntityContainer Name="eponym_app_licenseModelStoreContainer">
           <EntitySet Name="AlgoExpiry" EntityType="Self.AlgoExpiry" Schema="dbo" store:Type="Tables" />
@@ -38,20 +39,9 @@
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="eponym_app_licenseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="AlgoExpiry">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" />
-          <Property Name="DateExpiry" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="DeviceID" Type="String" MaxLength="60" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="CustomerID" Type="Int32" Nullable="false" />
-          <Property Name="AppName" Type="String" MaxLength="40" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="MaxUser" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
-        </EntityType>
         <EntityContainer Name="eponym_app_licenseEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="AlgoExpiries" EntityType="Self.AlgoExpiry" />
           <EntitySet Name="UserDetails" EntityType="eponym_app_licenseModel.UserDetail" />
+          <EntitySet Name="AlgoExpiries" EntityType="eponym_app_licenseModel.AlgoExpiry" />
         </EntityContainer>
         <EntityType Name="UserDetail">
           <Key>
@@ -66,6 +56,18 @@
           <Property Name="SocialId" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Password" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IsEmailVerified" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="AlgoExpiry">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DateExpiry" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="DeviceID" Type="String" Nullable="false" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="CustomerID" Type="Int32" Nullable="false" />
+          <Property Name="AppName" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="MaxUser" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -73,21 +75,10 @@
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="eponym_app_licenseModelStoreContainer" CdmEntityContainer="eponym_app_licenseEntities">
-          <EntitySetMapping Name="AlgoExpiries">
-            <EntityTypeMapping TypeName="eponym_app_licenseModel.AlgoExpiry">
-              <MappingFragment StoreEntitySet="AlgoExpiry">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="DateExpiry" ColumnName="DateExpiry" />
-                <ScalarProperty Name="DeviceID" ColumnName="DeviceID" />
-                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
-                <ScalarProperty Name="AppName" ColumnName="AppName" />
-                <ScalarProperty Name="MaxUser" ColumnName="MaxUser" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="UserDetails">
             <EntityTypeMapping TypeName="eponym_app_licenseModel.UserDetail">
               <MappingFragment StoreEntitySet="UserDetails">
+                <ScalarProperty Name="IsEmailVerified" ColumnName="IsEmailVerified" />
                 <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="SocialId" ColumnName="SocialId" />
@@ -96,6 +87,18 @@
                 <ScalarProperty Name="Mobile" ColumnName="Mobile" />
                 <ScalarProperty Name="emailid" ColumnName="emailid" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AlgoExpiries">
+            <EntityTypeMapping TypeName="eponym_app_licenseModel.AlgoExpiry">
+              <MappingFragment StoreEntitySet="AlgoExpiry">
+                <ScalarProperty Name="MaxUser" ColumnName="MaxUser" />
+                <ScalarProperty Name="AppName" ColumnName="AppName" />
+                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
+                <ScalarProperty Name="DeviceID" ColumnName="DeviceID" />
+                <ScalarProperty Name="DateExpiry" ColumnName="DateExpiry" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

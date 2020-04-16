@@ -58,14 +58,11 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                 <div class="w3l-nav">
                     <ul class="nav navbar-nav link-effect">
                         <li class="active"><a href="#">Home</a></li>
-                        <li><a href="#register" class="scroll">Register</a></li>
+                        <li><a href="#register" class="scroll">Register/Login</a></li>
                         <li><a href="#about" class="scroll">About Us</a></li>
                         <li><a href="#services" class="scroll">Services</a></li>
-                        <li>@*<a href="#team" class="scroll">Team</a>*@</li>
                         <li><a href="#gallery" class="scroll">Gallery</a></li>
                         <li><a href="#contact" class="scroll">Contact Us</a></li>
-                        <li><a href="#login" class="scroll">Login</a></li>
-
                     </ul>
                 </div>
             </div>
@@ -160,9 +157,9 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                         <div class="wthree_contact_left_grid">
                             <input type="text" name="Name" placeholder="Name" required="">
                             <input type="email" name="emailid" placeholder="Email" required="">
+                            <input type="password" size="15" maxlength="20" pattern="^(?=.*\d)(?=.*[a-zA-Z]).{4,10}$" name="Password" placeholder="Password" required=""><br /><br />
                             <input type="text" name="City" placeholder="City" required=""><br /><br />
                             <input type="text" name="State" placeholder="State" required=""><br /><br />
-                            <input type="password" size="15" maxlength="20" pattern="^(?=.*\d)(?=.*[a-zA-Z]).{4,10}$" name="Password" placeholder="Password" required=""><br /><br />
                             <input type="text" name="Mobile" placeholder="Phone Number" required="">
                         </div><br />
                         <button class="loginBtn loginBtn--facebook" onclick="fb_login()">
@@ -174,6 +171,27 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                         </button>
                         <input type="submit" value="Submit">
                     </form>
+                </div>
+
+                <div class="mail" id="login">
+                    <div class="container">
+                        <div class="mail-w3l-agile">
+
+                            <div class="col-md-6 col-sm-6 agileinfo_mail_grid_right" style="
+    margin-left: 1em;
+">
+                                <h3>Login</h3>
+                                <form>
+                                    <div class="wthree_contact_left_grid">
+                                        <input type="email" name="emailid" id="txtEmail" placeholder="Email" required>
+                                        <input type="password" name="Password" id="txtPassword" size="15" maxlength="20" pattern="^(?=.*\d)(?=.*[a-zA-Z]).{4,10}$" placeholder="Password" required>
+                                    </div>
+                                    <input type="button" id="btnLogin" class="w3l-cont scroll" value="Login">
+                                </form>
+                            </div>
+                            <div class="clearfix"> </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="clearfix"> </div>
@@ -233,7 +251,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                     </div>
                     <div class="wthree-services-info">
                         <h5>Algo Software Development </h5>
-                        <p>Algo/Robo software development and integration with Amibroker.</p>
+                        <div style="width: 537px;"><p>Algo/Robo software development and integration with Amibroker.</p></div>
                     </div>
                 </div>
                 <div class="wthree-services-grid w3l-agile">
@@ -249,430 +267,367 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                 <div class="clearfix"> </div>
             </div>
         </div>
+    </div>
 
-        <div class="gallery" id="gallery">
-            <div class="container">
-                <h3 class="w3l-title"><span>Our</span> Gallery</h3>
-                <div class="agile_gallery_grids w3-agile">
-                    <ul class="clearfix demo">
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g1.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
+    <div class="gallery" id="gallery">
+        <div class="container">
+            <h3 class="w3l-title"><span>Our</span> Gallery</h3>
+            <div class="agile_gallery_grids w3-agile">
+                <ul class="clearfix demo">
+                    <li>
+                        <div class="gallery-grid1">
+                            <img src="~/images/g1.jpg" alt=" " class="img-responsive" />
+                            <div class="p-mask">
+                                <h4><span>Online</span> Banking</h4>
+                                <p>Neque porro quisquam est, qui dolorem ipsum.</p>
                             </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g2.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g3.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g4.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g5.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g6.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g7.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g8.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="gallery-grid1">
-                                <img src="~/images/g9.jpg" alt=" " class="img-responsive" />
-                                <div class="p-mask">
-                                    <h4><span>Online</span> Banking</h4>
-                                    <p>Neque porro quisquam est, qui dolorem ipsum.</p>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <!--//gallery-->
-        <!-- mail -->
-        <div class="mail" id="contact">
-            <div class="container">
-                <h3 class="w3l-title"><span>Contact</span> Us</h3>
-                <div class="mail-w3l-agile">
-                    <div class="col-md-6 col-sm-6 contact-left-w3ls">
-                        <div class="w3l-cont-mk">
-                            <img src="~/images/img2.jpg">
                         </div>
-                    </div>
-                    <div class="col-md-6 col-sm-6 agileinfo_mail_grid_right">
-                        <h3>Get In Touch</h3>
-                        <form action="#" method="post">
-                            <div class="wthree_contact_left_grid">
-                                <input type="text" name="Name" placeholder="Name" required="">
-                                <input type="email" name="Email" placeholder="Email" required="">
-                                <input type="text" name="number" placeholder="Phone Number" required="">
+                    </li>
+                    <li>
+                        <div class="gallery-grid1">
+                            <img src="~/images/g2.jpg" alt=" " class="img-responsive" />
+                            <div class="p-mask">
+                                <h4><span>Online</span> Banking</h4>
+                                <p>Neque porro quisquam est, qui dolorem ipsum.</p>
                             </div>
-                            <textarea name="Message" placeholder="Message......." required=""></textarea>
-                            <input type="submit" value="Submit">
-                        </form>
-                    </div>
-                    <div class="clearfix"> </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- //mail -->
-
-        <div class="mail" id="login">
-            <div class="container">
-                <h3 class="w3l-title"><span>Login</span> </h3>
-                <div class="mail-w3l-agile">
-
-                    <div class="col-md-6 col-sm-6 agileinfo_mail_grid_right">
-                        <h3>Get In Touch</h3>
-                        <form >
-                            <div class="wthree_contact_left_grid">
-                                <input type="email" name="emailid" id="txtEmail" placeholder="Email" required>
-                                <input type="password" name="Password" id="txtPassword" size="15" maxlength="20" pattern="^(?=.*\d)(?=.*[a-zA-Z]).{4,10}$" placeholder="Password" required>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="gallery-grid1">
+                            <img src="~/images/g9.jpg" alt=" " class="img-responsive" />
+                            <div class="p-mask">
+                                <h4><span>Online</span> Banking</h4>
+                                <p>Neque porro quisquam est, qui dolorem ipsum.</p>
                             </div>
-                            <input type="button" id="btnLogin" class="w3l-cont scroll"  value="Login">
-                        </form>
-                    </div>
-                    <div class="clearfix"> </div>
-                </div>
-            </div>
-        </div>
-        <!-- footer -->
-        <div class="footer-bot">
-            <div class="container">
-                <div class="logo2">
-                    <h2><a href="#"><span>AFL Writing</span> Services</a></h2>
+                        </div>
+                    </li>
 
-                </div>
-
-                <div class="clearfix"></div>
-            </div>
-        </div>
-        <div class="copy-right">
-            <div class="agileinfo_social_icons">
-                <ul class="agileits_social_list">
-                    <li><a href="#" class="w3_agile_facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
-                    <li><a href="#" class="agile_twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
-                    <li><a href="#" class="w3_agile_dribble"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
-                    <li><a href="#" class="w3_agile_google"><i class="fa fa-google-plus" aria-hidden="true"></i></a></li>
                 </ul>
             </div>
-            <div class="container">
-                <p>
-                    &copy; @DateTime.Now.Year AFL Writing Services. All Rights Reserved | Design by  <a href="http://amibrokeralgo.in/Home/Index"> AFL Writing Services</a><br />
-                    All the strategies built and delivered to you must be thoroughly checked by you before trading in live market, We will not be responsible for any kind of profit/loss occurred by using the AFL or Algo/Robo application.
-                </p>
+        </div>
+    </div>
+    <!--//gallery-->
+    <!-- mail -->
+    <div class="mail" id="contact">
+        <div class="container">
+            <h3 class="w3l-title"><span>Contact</span> Us</h3>
+            <div class="mail-w3l-agile">
+                <div class="col-md-6 col-sm-6 contact-left-w3ls">
+                    <div class="w3l-cont-mk">
+                        <img src="~/images/img2.jpg">
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 agileinfo_mail_grid_right">
+                    <h3>Get In Touch</h3>
+                    <form action="#" method="post">
+                        <div class="wthree_contact_left_grid">
+                            <input type="text" name="Name" placeholder="Name" required="">
+                            <input type="email" name="Email" placeholder="Email" required="">
+                            <input type="text" name="number" placeholder="Phone Number" required="">
+                        </div>
+                        <textarea name="Message" placeholder="Message......." required=""></textarea>
+                        <input type="submit" value="Submit">
+                    </form>
+                </div>
+                <div class="clearfix"> </div>
             </div>
         </div>
-        <!-- //footer -->
-        <!-- js files -->
-        <!-- js -->
-        <script type="text/javascript" src="~/Scripts/js/jquery-2.1.4.min.js"></script>
-        <script type="text/javascript" src="~/Scripts/js/bootstrap.js"></script> <!-- Necessary-JavaScript-File-For-Bootstrap -->
-        <!-- //js -->
-        <!-- js for banner -->
-        <!-- responsiveslider -->
-        <script src="~/Scripts/js/responsiveslides.min.js"></script>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
-        <script>
-            var OAUTHURL = 'https://accounts.google.com/o/oauth2/auth?';
-            var VALIDURL = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=';
-            var SCOPE = 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
-            var CLIENTID = '86201031936-1r9ffffl00uordtuks8detelnfi3fkq5.apps.googleusercontent.com';
-            var REDIRECT = window.location.origin;
-            var LOGOUT = window.location.href;
-            var TYPE = 'token';
-            var _url = OAUTHURL + 'scope=' + SCOPE + '&client_id=' + CLIENTID + '&redirect_uri=' + REDIRECT + '&response_type=' + TYPE;
-            var acToken;
-            var tokenType;
-            var expiresIn;
-            var user;
-            var loggedIn = false;
-            var fullaccess_token;
-            var window = null;
-        </script>
-        <script>
-            // You can also use "$(window).load(function() {"
-            $(function () {
-                toastr.options.timeOut = 1500; // 1.5s
-                // Slideshow 4
-                $("#slider3").responsiveSlides({
-                    auto: true,
-                    pager: true,
-                    nav: false,
-                    speed: 500,
-                    namespace: "callbacks",
-                    before: function () {
-                        $('.events').append("<li>before event fired.</li>");
-                    },
-                    after: function () {
-                        $('.events').append("<li>after event fired.</li>");
-                    }
-                });
+    </div>
 
+    <!-- //mail -->
+    <!-- footer -->
+    <div class="footer-bot">
+        <div class="container">
+            <div class="logo2">
+                <h2><a href="#"><span>AFL Writing</span> Services</a></h2>
+
+            </div>
+
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    <div class="copy-right">
+        <div class="agileinfo_social_icons">
+            <ul class="agileits_social_list">
+                <li><a href="#" class="w3_agile_facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                <li><a href="#" class="agile_twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+                <li><a href="#" class="w3_agile_dribble"><i class="fa fa-dribbble" aria-hidden="true"></i></a></li>
+                <li><a href="#" class="w3_agile_google"><i class="fa fa-google-plus" aria-hidden="true"></i></a></li>
+            </ul>
+        </div>
+        <div class="container">
+            <p>
+                &copy; @DateTime.Now.Year AFL Writing Services. All Rights Reserved | Design by  <a href="http://amibrokeralgo.in/Home/Index"> AFL Writing Services</a><br />
+                All the strategies built and delivered to you must be thoroughly checked by you before trading in live market, We will not be responsible for any kind of profit/loss occurred by using the AFL or Algo/Robo application.
+            </p>
+        </div>
+    </div>
+    <!-- //footer -->
+    <!-- js files -->
+    <!-- js -->
+    <script type="text/javascript" src="~/Scripts/js/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/js/bootstrap.js"></script> <!-- Necessary-JavaScript-File-For-Bootstrap -->
+    <!-- //js -->
+    <!-- js for banner -->
+    <!-- responsiveslider -->
+    <script src="~/Scripts/js/responsiveslides.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+    <script>
+        var OAUTHURL = 'https://accounts.google.com/o/oauth2/auth?';
+        var VALIDURL = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=';
+        var SCOPE = 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
+        var CLIENTID = '86201031936-1r9ffffl00uordtuks8detelnfi3fkq5.apps.googleusercontent.com';
+        var REDIRECT = window.location.origin;
+        var LOGOUT = window.location.href;
+        var TYPE = 'token';
+        var _url = OAUTHURL + 'scope=' + SCOPE + '&client_id=' + CLIENTID + '&redirect_uri=' + REDIRECT + '&response_type=' + TYPE;
+        var acToken;
+        var tokenType;
+        var expiresIn;
+        var user;
+        var loggedIn = false;
+        var fullaccess_token;
+        var window = null;
+    </script>
+    @if (Session["Status"] != null && Convert.ToBoolean(Session["Status"]))
+    {
+        if (Session["Message"] != null)
+        {
+            <script>
+                toastr.success('@Session["Message"]');
+            </script>
+        }
+    }
+    <script>
+        // You can also use "$(window).load(function() {"
+        $(function () {
+            toastr.options.timeOut = 1500; // 1.5s
+            // Slideshow 4
+            $("#slider3").responsiveSlides({
+                auto: true,
+                pager: true,
+                nav: false,
+                speed: 500,
+                namespace: "callbacks",
+                before: function () {
+                    $('.events').append("<li>before event fired.</li>");
+                },
+                after: function () {
+                    $('.events').append("<li>after event fired.</li>");
+                }
             });
-            function googlelogin() {
-                var win = window.open(_url, "windowname1", 'width=800, height=600');
-                var pollTimer = window.setInterval(function () {
-                    try {
-                        access_token = win.document.URL;
-                        if (win.document.URL.indexOf(REDIRECT) != -1) {
-                            window.clearInterval(pollTimer);
-                            var url = win.document.URL;
-                            acToken = GoogleUserProfile(url, 'access_token');
-                            tokenType = GoogleUserProfile(url, 'token_type');
-                            expiresIn = GoogleUserProfile(url, 'expires_in');
-                            win.close();
-                            validateGoogleToken(acToken);
-                        }
+
+        });
+        function googlelogin() {
+            var win = window.open(_url, "windowname1", 'width=800, height=600');
+            var pollTimer = window.setInterval(function () {
+                try {
+                    access_token = win.document.URL;
+                    if (win.document.URL.indexOf(REDIRECT) != -1) {
+                        window.clearInterval(pollTimer);
+                        var url = win.document.URL;
+                        acToken = GoogleUserProfile(url, 'access_token');
+                        tokenType = GoogleUserProfile(url, 'token_type');
+                        expiresIn = GoogleUserProfile(url, 'expires_in');
+                        win.close();
+                        validateGoogleToken(acToken);
                     }
-                    catch (e) {
+                }
+                catch (e) {
 
-                    }
-                }, 500);
-            }
+                }
+            }, 500);
+        }
 
-            function GoogleUserProfile(url, name) {
-                namename = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-                var regexS = "[\\#&]" + name + "=([^&#]*)";
-                var regex = new RegExp(regexS);
-                var results = regex.exec(url);
-                if (results == null)
-                    return "";
-                else
-                    return results[1];
-            }
+        function GoogleUserProfile(url, name) {
+            namename = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+            var regexS = "[\\#&]" + name + "=([^&#]*)";
+            var regex = new RegExp(regexS);
+            var results = regex.exec(url);
+            if (results == null)
+                return "";
+            else
+                return results[1];
+        }
 
-            function validateGoogleToken(token) {
-                getGoogleUserInfo();
-                $.ajax(
-                    {
-                        url: VALIDURL + token,
-                        data: null,
-                        success: function (responseText) {
-                        },
-                    });
-            }
-
-            function getGoogleUserInfo() {
-                $.ajax({
-                    url: 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' + acToken,
+        function validateGoogleToken(token) {
+            getGoogleUserInfo();
+            $.ajax(
+                {
+                    url: VALIDURL + token,
                     data: null,
-                    success: function (resp) {
-                        user = resp;
-                        var data = {
-                            Name: user.name,
-                            emailid: user.email,
-                            SocialId: user.id
-                        }
-                        if (data != null) {
-                            $.ajax({
-                                url: '/Home/SocialLogin',
-                                type: 'POST',
-                                data: data,
-                                success: function (data) {
-                                    user = null;
-                                     if (data != null) {
-                                if (data.status == "Failed") {
-                                    toastr.error('Invalid credentials');
-                                }
-                                else {
-                                    location.href="/Home/UserPage"
+                    success: function (responseText) {
+                    },
+                });
+        }
+
+        function getGoogleUserInfo() {
+            $.ajax({
+                url: 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' + acToken,
+                data: null,
+                success: function (resp) {
+                    user = resp;
+                    var data = {
+                        Name: user.name,
+                        emailid: user.email,
+                        SocialId: user.id
+                    }
+                    if (data != null) {
+                        $.ajax({
+                            url: '/Home/SocialLogin',
+                            type: 'POST',
+                            data: data,
+                            success: function (data) {
+                                user = null;
+                                if (data != null) {
+                                    if (data.status == "Failed") {
+                                        toastr.error('Invalid credentials');
+                                    }
+                                    else {
+                                        location.href = "/Home/UserPage"
+                                    }
                                 }
                             }
-                                }
-                            })
+                        })
+                    }
+                },
+            })
+        }
+
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: '678780189541744',
+                oauth: true,
+                status: true, // check login status
+                cookie: true, // enable cookies to allow the server to access the session
+                xfbml: true // parse XFBML
+            });
+        };
+
+        function fb_login() {
+            FB.login(function (response) {
+                if (response.authResponse) {
+                    // Get and display the user profile data
+                    getFbUserData();
+                } else {
+                }
+            }, { scope: 'email' });
+        }
+
+        $('#btnLogin').click(function () {
+            var data = {
+                emailid: $("#txtEmail").val(),
+                Password: $("#txtPassword").val()
+            }
+            if (data != null) {
+                $.ajax({
+                    url: '/Home/Login',
+                    type: 'POST',
+                    data: data,
+                    success: function (data) {
+                        if (data != null) {
+                            if (data.status == "Failed") {
+                                toastr.error(data.data);
+                            }
+                            else {
+                                location.href = "/Home/UserPage"
+                            }
                         }
-                    },
+                    }
                 })
             }
+        });
 
-            window.fbAsyncInit = function () {
-                FB.init({
-                    appId: '678780189541744',
-                    oauth: true,
-                    status: true, // check login status
-                    cookie: true, // enable cookies to allow the server to access the session
-                    xfbml: true // parse XFBML
-                });
-            };
 
-            function fb_login() {
-                FB.login(function (response) {
-                    if (response.authResponse) {
-                        // Get and display the user profile data
-                        getFbUserData();
-                    } else {
+        function getFbUserData() {
+            FB.api('/me', { locale: 'en_US', fields: 'id,first_name,last_name,email,link,gender,locale,picture' },
+                function (response) {
+                    user = response;
+                    var data = {
+                        Name: user.first_name + " " + user.last_name,
+                        emailid: user.email,
+                        SocialId: user.id
                     }
-                }, { scope: 'email' });
-            }
-
-            $('#btnLogin').click(function () {
-                var data = {
-                    emailid: $("#txtEmail").val(),
-                    Password: $("#txtPassword").val()
-                }
-                if (data != null) {
-                    $.ajax({
-                        url: '/Home/Login',
-                        type: 'POST',
-                        data: data,
-                        success: function (data) {
-                            if (data != null) {
-                                if (data.status == "Failed") {
-                                    toastr.error('Invalid credentials');
-                                }
-                                else {
-                                    location.href="/Home/UserPage"
+                    if (data != null) {
+                        $.ajax({
+                            url: '/Home/SocialLogin',
+                            type: 'POST',
+                            data: data,
+                            success: function (data) {
+                                user = null;
+                                if (data != null) {
+                                    if (data.status == "Failed") {
+                                        toastr.error('Invalid credentials');
+                                    }
+                                    else {
+                                        location.href = "/Home/UserPage"
+                                    }
                                 }
                             }
-                        }
-                    })
-                }
-            });
-
-
-            function getFbUserData() {
-                FB.api('/me', { locale: 'en_US', fields: 'id,first_name,last_name,email,link,gender,locale,picture' },
-                    function (response) {
-                        user = response;
-                        var data = {
-                            Name: user.first_name + " " + user.last_name,
-                            emailid: user.email,
-                            SocialId: user.id
-                        }
-                        if (data != null) {
-                            $.ajax({
-                                url: '/Home/SocialLogin',
-                                type: 'POST',
-                                data: data,
-                                success: function (data) {
-                                    user = null;
-                                      if (data != null) {
-                                if (data.status == "Failed") {
-                                    toastr.error('Invalid credentials');
-                                }
-                                else {
-                                    location.href="/Home/UserPage"
-                                }
-                            }
-                                }
-                            })
-                        }
-                    });
-            }
-
-            (function () {
-                var e = document.createElement('script');
-                e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
-                e.async = true;
-                document.getElementById('fb-root').appendChild(e);
-            }());
-
-        </script>
-        <!-- //responsiveslider -->
-        <!-- stats -->
-        <script type="text/javascript" src="~/Scripts/js/numscroller-1.0.js"></script>
-        <!-- //stats -->
-        <!-- /js for banner -->
-        <!-- start-smoth-scrolling -->
-        <script type="text/javascript" src="~/Scripts/js/move-top.js"></script>
-        <script type="text/javascript" src="~/Scripts/js/easing.js"></script>
-        <script type="text/javascript">
-            jQuery(document).ready(function ($) {
-                $(".scroll").click(function (event) {
-                    event.preventDefault();
-                    $('html,body').animate({ scrollTop: $(this.hash).offset().top }, 1000);
+                        })
+                    }
                 });
-            });
-        </script>
-        <!-- start-smoth-scrolling -->
-        <!-- smooth scrolling -->
-        <script src="~/Scripts/js/SmoothScroll.min.js"></script>
-        <!-- //smooth scrolling -->
-        <!-- smooth-scrolling-of-move-up -->
-        <script type="text/javascript">
-            $(document).ready(function () {
-                /*
-                var defaults = {
-                    containerID: 'toTop', // fading element id
-                    containerHoverID: 'toTopHover', // fading element hover id
-                    scrollSpeed: 1200,
-                    easingType: 'linear'
-                };
-                */
+        }
 
-                $().UItoTop({ easingType: 'easeOutQuart' });
+        (function () {
+            var e = document.createElement('script');
+            e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
+            e.async = true;
+            document.getElementById('fb-root').appendChild(e);
+        }());
 
+    </script>
+    <!-- //responsiveslider -->
+    <!-- stats -->
+    <script type="text/javascript" src="~/Scripts/js/numscroller-1.0.js"></script>
+    <!-- //stats -->
+    <!-- /js for banner -->
+    <!-- start-smoth-scrolling -->
+    <script type="text/javascript" src="~/Scripts/js/move-top.js"></script>
+    <script type="text/javascript" src="~/Scripts/js/easing.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $(".scroll").click(function (event) {
+                event.preventDefault();
+                $('html,body').animate({ scrollTop: $(this.hash).offset().top }, 1000);
             });
-        </script>
-        <!-- //smooth-scrolling-of-move-up -->
-        <!-- video-js -->
-        <script src="~/Scripts/js/jquery.vide.min.js"></script>
-        <!-- //video-js -->
-        <!--gallery-js -->
-        <script src="~/Scripts/js/jquery.picEyes.js"></script>
-        <script>
-            $(function () {
-                //picturesEyes($('.demo li'));
-                $('.demo li').picEyes();
-            });
-        </script>
-        <!--//gallery-js -->
-        <!-- //js files -->
+        });
+    </script>
+    <!-- start-smoth-scrolling -->
+    <!-- smooth scrolling -->
+    <script src="~/Scripts/js/SmoothScroll.min.js"></script>
+    <!-- //smooth scrolling -->
+    <!-- smooth-scrolling-of-move-up -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /*
+            var defaults = {
+                containerID: 'toTop', // fading element id
+                containerHoverID: 'toTopHover', // fading element hover id
+                scrollSpeed: 1200,
+                easingType: 'linear'
+            };
+            */
+
+            $().UItoTop({ easingType: 'easeOutQuart' });
+
+        });
+    </script>
+    <!-- //smooth-scrolling-of-move-up -->
+    <!-- video-js -->
+    <script src="~/Scripts/js/jquery.vide.min.js"></script>
+    <!-- //video-js -->
+    <!--gallery-js -->
+    <script src="~/Scripts/js/jquery.picEyes.js"></script>
+    <script>
+        $(function () {
+            //picturesEyes($('.demo li'));
+            $('.demo li').picEyes();
+        });
+    </script>
+    <!--//gallery-js -->
+    <!-- //js files -->
 
 </body>
 </html>

@@ -5,8 +5,8 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="ec4c1aa17a274384b67aca1a8faf1697" Name="Diagram1">
-        <EntityTypeShape EntityType="eponym_app_licenseModel.AlgoExpiry" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="eponym_app_licenseModel.UserDetail" Width="1.5" PointX="3.375" PointY="0.75" />
+        <EntityTypeShape EntityType="eponym_app_licenseModel.AlgoExpiry" Width="1.5" PointX="0.75" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
