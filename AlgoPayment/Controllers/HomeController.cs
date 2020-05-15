@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Mvc;
 
 namespace AlgoPayment.Controllers
@@ -18,15 +19,19 @@ namespace AlgoPayment.Controllers
     {
         public ActionResult Index()
         {
+
             var loggedInUser = (UserCredentials)(Session["UserCredentials"]);
             if (loggedInUser != null)
                 return View("UserPage");
+
+
             return View();
         }
 
 
         public ActionResult UserPage()
         {
+
             using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
             {
                 var loggedInUser = (UserCredentials)(Session["UserCredentials"]);
@@ -73,15 +78,15 @@ namespace AlgoPayment.Controllers
                 using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                 {
                     var user = db.UserDetails.Where(x => x.emailid == data.emailid && x.Password == data.Password).FirstOrDefault();
-                    if (!user.IsEmailVerified)
+                    if (user != null && !user.IsEmailVerified)
                     {
                         return Json(new { data = "Account not email confirmed", status = "Failed" }, JsonRequestBehavior.AllowGet);
                     }
                     if (user != null)
                     {
                         Session["UserCredentials"] = new UserCredentials()
-                        { emailid = user.emailid, Id = user.Id, Name = user.Name, Mobile = user.Mobile, City = user.City, State = user.State, SocialId = user.SocialId, Password = user.Password };
-                        return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+                        { emailid = user.emailid, Id = user.Id, Name = user.Name, UserRole = user.UserRole, Mobile = user.Mobile, City = user.City, State = user.State, SocialId = user.SocialId, Password = user.Password };
+                        return Json(new { data = user, status = "Success" }, JsonRequestBehavior.AllowGet);
                     }
                     else
                     {
@@ -106,6 +111,7 @@ namespace AlgoPayment.Controllers
                       .Replace("1", "").Replace("o", "").Replace("0", "")
                       .Substring(0, 10);
                         data.IsEmailVerified = true;
+                        data.UserRole = "client";
                         db.UserDetails.Add(data);
                         db.SaveChanges();
                         int newCustomer = data.Id;
@@ -113,8 +119,8 @@ namespace AlgoPayment.Controllers
                         if (user != null)
                         {
                             Session["UserCredentials"] = new UserCredentials()
-                            { emailid = user.emailid, Id = user.Id, Name = user.Name, Mobile = user.Mobile, City = user.City, State = user.State, SocialId = user.SocialId, Password = user.Password };
-                            return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+                            { emailid = user.emailid, Id = user.Id, Name = user.Name, Mobile = user.Mobile, UserRole = user.UserRole, City = user.City, State = user.State, SocialId = user.SocialId, Password = user.Password };
+                            return Json(new { data = user, status = "Success" }, JsonRequestBehavior.AllowGet);
                         }
                         else
                         {
@@ -127,8 +133,8 @@ namespace AlgoPayment.Controllers
                         if (user != null)
                         {
                             Session["UserCredentials"] = new UserCredentials()
-                            { emailid = user.emailid, Id = user.Id, Name = user.Name, Mobile = user.Mobile, City = user.City, State = user.State, SocialId = user.SocialId, Password = user.Password };
-                            return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+                            { emailid = user.emailid, Id = user.Id, Name = user.Name, Mobile = user.Mobile, UserRole = user.UserRole, City = user.City, State = user.State, SocialId = user.SocialId, Password = user.Password };
+                            return Json(new { data = user, status = "Success" }, JsonRequestBehavior.AllowGet);
                         }
                         else
                         {
@@ -161,6 +167,7 @@ namespace AlgoPayment.Controllers
                 using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                 {
                     user.CreatedDate = DateTime.Now;
+                    user.UserRole = "client";
                     db.UserDetails.Add(user);
                     if (1 == db.SaveChanges())
                     {
@@ -190,6 +197,42 @@ namespace AlgoPayment.Controllers
             Session["Status"] = Status;
 
             return RedirectToAction("Index");
+        }
+
+        public ActionResult AdminPage()
+        {
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                var clients = (from n in db.AlgoExpiries
+                               from u in db.UserDetails
+                               where n.CustomerID == u.Id && u.UserRole == "client"
+                               select new ClientViewModel
+                               {
+                                   CustomerID = n.CustomerID,
+                                   AppName = n.AppName,
+                                   DateExpiry = n.DateExpiry,
+                                   DeviceID = n.DeviceID,
+                                   CustomerName = u.Name,
+                                   emailid = u.emailid,
+                                   City = u.City,
+                                   State = u.State,
+                                   Mobile = u.Mobile
+                               }).ToList();
+                ViewBag.lstClients = clients;
+            }
+
+            return View();
+        }
+
+        public ActionResult ResellerPage()
+        {
+
+            return View();
+        }
+
+        public ActionResult AdminSetting()
+        {
+            return View();
         }
 
     }

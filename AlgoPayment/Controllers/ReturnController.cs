@@ -1,5 +1,6 @@
 ﻿using AlgoPayment.Helpers;
 using AlgoPayment.Models;
+using AlgoPayment.VideModel;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -58,7 +59,7 @@ namespace AlgoPayment.Controllers
                         using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                         {
                             var nameWithID = Request.Form["firstname"];
-                            var userId = Convert.ToInt32(nameWithID.Split(',')[1]);
+                            var userId = Convert.ToInt32(nameWithID.Split   (',')[1]);
                             var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID ==userId);
                             if (algo == null)
                             {
@@ -95,6 +96,40 @@ namespace AlgoPayment.Controllers
             }
 
 
+        }
+
+        [HttpGet]
+        public ActionResult HandleRazorPay(string deviceId)
+        {
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                var loggedInUser = (UserCredentials)(Session["UserCredentials"]);
+                if (loggedInUser!=null)
+                {
+                    var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == loggedInUser.Id);
+                    if (algo == null)
+                    {
+                        algo = new AlgoExpiry() { CustomerID = loggedInUser.Id, DeviceID = deviceId, DateExpiry = DateTime.Now.AddDays(7).ToShortDateString(), AppName = "Default", MaxUser = "1" };
+
+                        db.AlgoExpiries.Add(algo);
+                        db.SaveChanges();
+                        return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+
+                    }
+                    else
+                    {
+                        algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToShortDateString() : Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToShortDateString();
+                        db.SaveChanges();
+                        return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+
+                    }
+                }
+                else
+                {
+                    return Json(new { data = true, status = "Failed" }, JsonRequestBehavior.AllowGet);
+
+                }
+            }
         }
 
         public ActionResult Fail()

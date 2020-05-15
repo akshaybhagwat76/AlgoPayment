@@ -481,11 +481,26 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                             success: function (data) {
                                 user = null;
                                 if (data != null) {
+
                                     if (data.status == "Failed") {
                                         toastr.error('Invalid credentials');
+
                                     }
                                     else {
-                                        location.href = "/Home/UserPage"
+                                        if (data.data !== null && typeof data.data === 'object') {
+                                            if (data.data.UserRole == "admin") {
+                                                location.href = "/Home/AdminPage"
+                                            }
+                                            else if (data.data.UserRole == "reseller") {
+                                                location.href = "/Home/ResellerPage"
+                                            }
+                                            else {
+                                                location.href = "/Home/UserPage"
+                                            }
+                                        }
+                                        else {
+                                            location.href = "/Home/UserPage"
+                                        }
                                     }
                                 }
                             }
@@ -526,12 +541,27 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                     type: 'POST',
                     data: data,
                     success: function (data) {
+                        debugger
                         if (data != null) {
+                            
                             if (data.status == "Failed") {
                                 toastr.error(data.data);
                             }
                             else {
-                                location.href = "/Home/UserPage"
+                                if (data.data !== null && typeof data.data === 'object') {
+                                    if (data.data.UserRole == "admin") {
+                                        location.href = "/Home/AdminPage"
+                                    }
+                                    else if (data.data.UserRole == "reseller") {
+                                        location.href = "/Home/ResellerPage"
+                                    }
+                                    else {
+                                        location.href = "/Home/UserPage"
+                                    }
+                                }
+                                else {
+                                    location.href = "/Home/UserPage"
+                                }
                             }
                         }
                     }
@@ -557,11 +587,26 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                             success: function (data) {
                                 user = null;
                                 if (data != null) {
+
                                     if (data.status == "Failed") {
                                         toastr.error('Invalid credentials');
+
                                     }
                                     else {
-                                        location.href = "/Home/UserPage"
+                                        if (data.data !== null && typeof data.data === 'object') {
+                                            if (data.data.UserRole == "admin") {
+                                                location.href = "/Home/AdminPage"
+                                            }
+                                            else if (data.data.UserRole == "reseller") {
+                                                location.href = "/Home/ResellerPage"
+                                            }
+                                            else {
+                                                location.href = "/Home/UserPage"
+                                            }
+                                        }
+                                        else {
+                                            location.href = "/Home/UserPage"
+                                        }
                                     }
                                 }
                             }

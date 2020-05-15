@@ -14,6 +14,7 @@ namespace AlgoPayment.VideModel
         public string City { get; set; }
         public string State { get; set; }
         public string SocialId { get; set; }
+        public string UserRole { get; set; }
         public string Password { get; set; }
         public System.DateTime CreatedDate { get; set; }
     }

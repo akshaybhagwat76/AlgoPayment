@@ -12,18 +12,10 @@ namespace AlgoPayment.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class UserDetail
+    public partial class AppSetting
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string emailid { get; set; }
-        public string Mobile { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string SocialId { get; set; }
-        public string Password { get; set; }
-        public System.DateTime CreatedDate { get; set; }
-        public bool IsEmailVerified { get; set; }
-        public string UserRole { get; set; }
+        public int ResellerId { get; set; }
+        public int Amount { get; set; }
     }
 }

@@ -1,0 +1,281 @@
+﻿@using AlgoPayment.VideModel;
+@using System.Web.Configuration;
+
+@{
+    ViewBag.Title = "Admin Setting";
+    Layout = null;
+
+    UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
+    if (user == null)
+    {
+        Response.Redirect("/Home/Index");
+        return;
+    }
+}
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<!--Navbar-->
+<nav class="navbar navbar-default mq-navbar">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Hi @user.Name</a>
+        </div>
+
+        <div class="navbar-header collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li><a href="/Home/AdminPage">Clients</a></li>
+                <li><a href="#">Resellers</a></li>
+                <li class="active"><a href="/Home/AdminSetting">Settings</a></li>
+                <li><a id="btnLogout" ><i class="icon-off"></i> Logout</a></li>
+            </ul>
+        </div>
+       
+    </div>
+</nav>
+
+<!-- widgets -->
+<div class="container">
+    <div >
+
+
+        <div class="mq-panel-body">
+            <div class="row">
+                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                    <label class="labeltext">Payment Options</label><br>
+                    <div class="form-check-inline">
+
+                        <label class="customradio">
+                            <span class="radiotextsty">PayUMoney</span>
+                            <input type="radio" id="PayUMoney" value="PayUMoney" onchange="setPaymentOption('PayUMoney')" name="radio">
+                            <span class="checkmark"></span>
+                        </label>
+                        <label class="customradio">
+                            <span class="radiotextsty">RazorPay</span>
+                            <input type="radio" id="RazorPay" onchange="setPaymentOption('RazorPay')" value="RazorPay" name="radio">
+                            <span class="checkmark"></span>
+                        </label>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<script>
+    function setPaymentOption(option) {
+        $.get('/Account/ChangeCheckoutAmount?method=' + option, function (data) {
+            if (data != null) {
+                if (data.status == "Failed") {
+                    toastr.error('Invalid credentials');
+                }
+                else {
+                    toastr.success('Setting changes successfully');
+                }
+            }
+        });
+    }
+
+    $("#btnLogout").click(function () {
+        $.get('/Home/Logout', function (data) {
+            if (data == "Cleared") {
+                location.href = "/Home/Index";
+            }
+        });
+    });
+
+    $(document).ready(function () {
+
+        toastr.options.timeOut = 1500; // 1.5s
+
+          var PaymentOption = '@System.Configuration.ConfigurationManager.AppSettings["PaymentOption"]';
+        if (PaymentOption === "PayUMoney") {
+            $('#PayUMoney').attr('checked', true);
+        }
+        else {
+            $('#RazorPay').attr('checked', true);
+
+        }
+    })
+</script>
+
+<style>
+
+    .radiotextsty {
+        color: #A5A4BF;
+        font-size: 18px;
+    }
+
+    .customradio {
+        display: block;
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 0px;
+        cursor: pointer;
+        font-size: 18px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+        /* Hide the browser's default radio button */
+        .customradio input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+    /* Create a custom radio button */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 22px;
+        width: 22px;
+        background-color: white;
+        border-radius: 50%;
+        border: 1px solid #BEBEBE;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .customradio:hover input ~ .checkmark {
+        background-color: transparent;
+    }
+
+    /* When the radio button is checked, add a blue background */
+    .customradio input:checked ~ .checkmark {
+        background-color: white;
+        border: 1px solid #BEBEBE;
+    }
+
+    /* Create the indicator (the dot/circle - hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the indicator (dot/circle) when checked */
+    .customradio input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the indicator (dot/circle) */
+    .customradio .checkmark:after {
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #A3A0FB;
+    }
+
+    .mq-navbar {
+        border-radius: 0px;
+        background-color: #2d2d2d;
+        color: #fff;
+    }
+
+    .mq-dropdown {
+        margin-top: 10px !important;
+        padding: 0px !important;
+        background-color: #76b9ea;
+    }
+
+    .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+        color: #fff !important;
+        background-color: #1c1c1c;
+    }
+
+    .mq-comment {
+        list-style: none;
+        margin-bottom: 10px;
+        padding: 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .comment li {
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px dotted #B3A9A9;
+    }
+
+    .mq-comment-img {
+        margin-right: 10px;
+    }
+
+    .mq-panel-wrapper {
+        width: 45%;
+        height: 300px;
+        background-color: #2d2d2d;
+        margin: 20px;
+        float: left;
+        border: 1px solid #330033;
+        box-shadow: 0px 0px 20px 0px #2d2d2d;
+        border-radius: 0px 0px 5px 5px;
+    }
+
+    .mq-panel-header {
+        width: 100%;
+        height: 60px;
+        background-color: #1c1c1c;
+        padding: 10px;
+        display: table;
+        position: relative;
+    }
+
+        .mq-panel-header h3 {
+            color: #fff;
+            font-size: 12pt;
+            font-weight: 300;
+            letter-spacing: 1px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+    .mq-panel-body {
+        width: 100%;
+        max-height: 238px;
+        overflow-y: scroll;
+        padding: 10px;
+        background-color: #eee;
+        border-radius: 0px 0px 5px 5px;
+    }
+
+    .mq-friends {
+        width: 31.3%;
+        height: 100px;
+        padding: 0;
+        position: relative;
+        display: table;
+        float: left;
+        margin: 0px 10px 10px 0px;
+    }
+
+        .mq-friends:hover {
+            transition: .6s;
+            transform: scale(.9);
+        }
+
+    .mq-friend-img {
+        padding-top: 10px;
+    }
+
+    .mq-friends-footer {
+        width: 100%;
+        background-color: #3399ff;
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        color: #fff;
+    }
+</style>

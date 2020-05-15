@@ -11,7 +11,7 @@
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="DateExpiry" Type="varchar" MaxLength="10" Nullable="false" />
-          <Property Name="DeviceID" Type="varchar" MaxLength="60" Nullable="false" />
+          <Property Name="DeviceID" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="CustomerID" Type="int" Nullable="false" />
           <Property Name="AppName" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="MaxUser" Type="varchar" MaxLength="3" Nullable="false" />
@@ -30,10 +30,20 @@
           <Property Name="Password" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="CreatedDate" Type="datetime" Nullable="false" />
           <Property Name="IsEmailVerified" Type="bit" Nullable="false" />
+          <Property Name="UserRole" Type="nvarchar" MaxLength="16" Nullable="false" />
+        </EntityType>
+        <EntityType Name="AppSettings">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ResellerId" Type="int" Nullable="false" />
+          <Property Name="Amount" Type="int" Nullable="false" />
         </EntityType>
         <EntityContainer Name="eponym_app_licenseModelStoreContainer">
           <EntitySet Name="AlgoExpiry" EntityType="Self.AlgoExpiry" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserDetails" EntityType="Self.UserDetails" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AppSettings" EntityType="Self.AppSettings" Schema="eponym_sa" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -42,6 +52,7 @@
         <EntityContainer Name="eponym_app_licenseEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="UserDetails" EntityType="eponym_app_licenseModel.UserDetail" />
           <EntitySet Name="AlgoExpiries" EntityType="eponym_app_licenseModel.AlgoExpiry" />
+          <EntitySet Name="AppSettings" EntityType="eponym_app_licenseModel.AppSetting" />
         </EntityContainer>
         <EntityType Name="UserDetail">
           <Key>
@@ -57,6 +68,7 @@
           <Property Name="Password" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsEmailVerified" Type="Boolean" Nullable="false" />
+          <Property Name="UserRole" Type="String" Nullable="false" MaxLength="16" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="AlgoExpiry">
           <Key>
@@ -64,10 +76,18 @@
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="DateExpiry" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="DeviceID" Type="String" Nullable="false" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="DeviceID" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="CustomerID" Type="Int32" Nullable="false" />
           <Property Name="AppName" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="MaxUser" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="AppSetting">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ResellerId" Type="Int32" Nullable="false" />
+          <Property Name="Amount" Type="Int32" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -78,6 +98,7 @@
           <EntitySetMapping Name="UserDetails">
             <EntityTypeMapping TypeName="eponym_app_licenseModel.UserDetail">
               <MappingFragment StoreEntitySet="UserDetails">
+                <ScalarProperty Name="UserRole" ColumnName="UserRole" />
                 <ScalarProperty Name="IsEmailVerified" ColumnName="IsEmailVerified" />
                 <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
@@ -99,6 +120,15 @@
                 <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
                 <ScalarProperty Name="DeviceID" ColumnName="DeviceID" />
                 <ScalarProperty Name="DateExpiry" ColumnName="DateExpiry" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AppSettings">
+            <EntityTypeMapping TypeName="eponym_app_licenseModel.AppSetting">
+              <MappingFragment StoreEntitySet="AppSettings">
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="ResellerId" ColumnName="ResellerId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

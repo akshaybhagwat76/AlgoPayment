@@ -1,0 +1,195 @@
+﻿@using AlgoPayment.VideModel;
+
+@{
+    ViewBag.Title = "ResellerPage";
+    Layout = null;
+
+    UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
+    if (user == null)
+    {
+        Response.Redirect("~/Home/Index");
+        return;
+    }
+}
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+<!--Navbar-->
+<nav class="navbar navbar-default mq-navbar">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Hi @user.Name</a>
+        </div>
+
+        <div class="navbar-header collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Clients</a></li>
+                <li><a href="#">Resellers</a></li>
+                <li><a href="/Home/AdminSetting">Settings</a></li>
+                <li><a id="btnLogout"><i class="icon-off"></i> Logout</a></li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- widgets -->
+<div class="container">
+    <table class="display" id="myTable">
+        <thead>
+            <tr>
+                <th>
+                    Customer Name
+                </th>
+                <th>
+                    DeviceId
+                </th>
+                <th>
+                    Expiry Date
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var person in (List<ClientViewModel>)ViewBag.lstClients)
+            {
+                var n = DateTime.Parse(person.DateExpiry);
+                <tr>
+                    <td>@person.CustomerName</td>
+                    <td>@person.DeviceID</td>
+                    <td>@n.ToShortDateString()</td>
+                </tr>
+            }
+
+
+
+        </tbody>
+
+    </table>
+
+
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />
+<script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script>
+    $(function () {
+        $("#myTable").dataTable();
+    })
+    $("#btnLogout").click(function () {
+        $.get('/Home/Logout', function (data) {
+            if (data == "Cleared") {
+                location.href = "/Home/Index";
+            }
+        });
+    });
+
+</script>
+<style>
+    .mq-navbar {
+        border-radius: 0px;
+        background-color: #2d2d2d;
+        color: #fff;
+    }
+
+    .mq-dropdown {
+        margin-top: 10px !important;
+        padding: 0px !important;
+        background-color: #76b9ea;
+    }
+
+    .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+        color: #fff !important;
+        background-color: #1c1c1c;
+    }
+
+    .mq-comment {
+        list-style: none;
+        margin-bottom: 10px;
+        padding: 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .comment li {
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px dotted #B3A9A9;
+    }
+
+    .mq-comment-img {
+        margin-right: 10px;
+    }
+
+    .mq-panel-wrapper {
+        width: 45%;
+        height: 300px;
+        background-color: #2d2d2d;
+        margin: 20px;
+        float: left;
+        border: 1px solid #330033;
+        box-shadow: 0px 0px 20px 0px #2d2d2d;
+        border-radius: 0px 0px 5px 5px;
+    }
+
+    .mq-panel-header {
+        width: 100%;
+        height: 60px;
+        background-color: #1c1c1c;
+        padding: 10px;
+        display: table;
+        position: relative;
+    }
+
+        .mq-panel-header h3 {
+            color: #fff;
+            font-size: 12pt;
+            font-weight: 300;
+            letter-spacing: 1px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+    .mq-panel-body {
+        width: 100%;
+        max-height: 238px;
+        overflow-y: scroll;
+        padding: 10px;
+        background-color: #eee;
+        border-radius: 0px 0px 5px 5px;
+    }
+
+    .mq-friends {
+        width: 31.3%;
+        height: 100px;
+        padding: 0;
+        position: relative;
+        display: table;
+        float: left;
+        margin: 0px 10px 10px 0px;
+    }
+
+        .mq-friends:hover {
+            transition: .6s;
+            transform: scale(.9);
+        }
+
+    .mq-friend-img {
+        padding-top: 10px;
+    }
+
+    .mq-friends-footer {
+        width: 100%;
+        background-color: #3399ff;
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        color: #fff;
+    }
+</style>

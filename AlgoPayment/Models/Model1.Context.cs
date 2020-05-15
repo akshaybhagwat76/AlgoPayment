@@ -27,5 +27,6 @@ namespace AlgoPayment.Models
     
         public DbSet<UserDetail> UserDetails { get; set; }
         public DbSet<AlgoExpiry> AlgoExpiries { get; set; }
+        public DbSet<AppSetting> AppSettings { get; set; }
     }
 }

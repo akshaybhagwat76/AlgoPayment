@@ -2,8 +2,10 @@
 using AlgoPayment.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Mvc;
 
 namespace AlgoPayment.Controllers
@@ -52,6 +54,29 @@ namespace AlgoPayment.Controllers
         public bool IsUserExists(string email)
         {
             return db.UserDetails.Count(x => x.emailid == email) > 0;
+        }
+
+        [HttpGet]
+        public ActionResult ChangeCheckoutAmount(string method)
+        {
+            try
+            {
+                //Helps to open the Root level web.config file.
+                Configuration webConfigApp = WebConfigurationManager.OpenWebConfiguration("~");
+
+                //Modifying the AppKey from AppValue to AppValue1
+                webConfigApp.AppSettings.Settings["PaymentOption"].Value = method;
+
+                //Save the Modified settings of AppSettings.
+                webConfigApp.Save();
+                return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { data = true, status = "Failed" }, JsonRequestBehavior.AllowGet);
+            }
+
         }
 
         public bool UpdateAccountActivation(int id)
