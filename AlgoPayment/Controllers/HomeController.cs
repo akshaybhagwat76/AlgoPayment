@@ -1,6 +1,7 @@
 ﻿using AlgoPayment.Helpers;
 using AlgoPayment.Models;
 using AlgoPayment.VideModel;
+using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ using System.Web.Mvc;
 
 namespace AlgoPayment.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         public ActionResult Index()
         {
@@ -70,6 +71,17 @@ namespace AlgoPayment.Controllers
             return Json("Cleared", JsonRequestBehavior.AllowGet);
         }
 
+
+        public ActionResult ResellerFail()
+        {
+            return View();
+        }
+
+        public ActionResult ResellerSuccess()
+        {
+            return View();
+        }
+
         [HttpPost]
         public JsonResult Login(UserDetail data)
         {
@@ -77,14 +89,14 @@ namespace AlgoPayment.Controllers
             {
                 using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                 {
-                    var user = db.UserDetails.Where(x => x.emailid == data.emailid && x.Password == data.Password).FirstOrDefault();
+                        var user = db.UserDetails.Where(x => x.emailid == data.emailid && x.Password == data.Password).FirstOrDefault();
                     if (user != null && !user.IsEmailVerified)
                     {
                         return Json(new { data = "Account not email confirmed", status = "Failed" }, JsonRequestBehavior.AllowGet);
                     }
                     if (user != null)
                     {
-                        Session["UserCredentials"] = new UserCredentials()
+                        CrossControllerSession["UserCredentials"] = new UserCredentials()
                         { emailid = user.emailid, Id = user.Id, Name = user.Name, UserRole = user.UserRole, Mobile = user.Mobile, City = user.City, State = user.State, SocialId = user.SocialId, Password = user.Password };
                         return Json(new { data = user, status = "Success" }, JsonRequestBehavior.AllowGet);
                     }
@@ -215,6 +227,7 @@ namespace AlgoPayment.Controllers
                                    CustomerName = u.Name,
                                    emailid = u.emailid,
                                    City = u.City,
+                                   Password = u.Password,
                                    State = u.State,
                                    Mobile = u.Mobile
                                }).ToList();
@@ -224,10 +237,415 @@ namespace AlgoPayment.Controllers
             return View();
         }
 
-        public ActionResult ResellerPage()
+
+  
+        public ActionResult AdminResellers()
         {
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                var clients = (from n in db.AlgoExpiries
+                               from u in db.UserDetails
+                               from r in db.AppSettings
+                               where n.CustomerID == u.Id && r.ResellerId == u.Id && u.UserRole == "reseller"
+                               select new ResellerViewModel
+                               {
+                                   CustomerID = n.CustomerID,
+                                   AppName = n.AppName,
+                                   DateExpiry = n.DateExpiry,
+                                   DeviceID = n.DeviceID,
+                                   CustomerName = u.Name,
+                                   emailid = u.emailid,
+                                   City = u.City,
+                                   Password = u.Password,
+                                   State = u.State,
+                                   Mobile = u.Mobile,
+                                   ResellerAmount = r.Amount
+                               }).DistinctBy(x => x.CustomerID).ToList();
+                ViewBag.lstResellers = clients;
+            }
 
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult DeleteClient(int id)
+        {
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                if (id>0)
+                {
+                    var user = db.UserDetails.Find(id);
+                    if (user != null)
+                    {
+                        try
+                        {
+
+                            db.UserDetails.Remove(user);
+                            db.SaveChanges();
+                            return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception(ex.Message.ToString());
+                        }
+                    }
+                }
+            }
+            return Json(new { data = false, status = "Failed" }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult EditResellerClient( int id)
+        {
+            try
+            {
+                ClientViewModel categoryVM = new ClientViewModel();
+
+                if (id > 0)
+                {
+
+                    using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+                    {
+
+                        var client = (from n in db.AlgoExpiries
+                                      from u in db.UserDetails
+                                      where n.CustomerID == u.Id && u.Id == id && u.UserRole == "resellerclient"
+                                      select new ClientViewModel
+                                      {
+                                          CustomerID = n.CustomerID,
+                                          AppName = n.AppName,
+                                          DateExpiry = n.DateExpiry,
+                                          DeviceID = n.DeviceID,
+                                          CustomerName = u.Name,
+                                          emailid = u.emailid,
+                                          City = u.City,
+                                          MaxUser = n.MaxUser,
+                                          Password = u.Password,
+                                          State = u.State,
+                                          Mobile = u.Mobile
+                                      }).FirstOrDefault();
+                        categoryVM = client;
+                    }
+                }
+
+                return View(categoryVM);
+            }
+            catch (Exception ex)
+            {
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult MarkAsReseller(string param)
+        {
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                if (!string.IsNullOrEmpty(param))
+                {
+                    var user = db.UserDetails.Find(int.Parse(param.Split(',')[0]));
+                    if (user == null)
+                    {
+                        try
+                        {
+                            user.UserRole = "reseller";
+                            var setting = db.AppSettings.Where(x => x.ResellerId == int.Parse(param.Split(',')[0])).FirstOrDefault();
+                            if (setting == null)
+                            {
+                                db.AppSettings.Add(new AppSetting { Amount = int.Parse(param.Split(',')[1]), ResellerId = int.Parse(param.Split(',')[0]) });
+                            }
+                            else
+                            {
+                                setting.Amount = int.Parse(param.Split(',')[1]);
+                            }
+                            db.SaveChanges();
+                            return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception(ex.Message.ToString());
+                        }
+                    }
+                    
+                }
+            }
+            return Json(new { data = false, status = "Failed" }, JsonRequestBehavior.AllowGet);
+        }
+
+        public bool IsUserExists(string email, int id)
+        {
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                return db.UserDetails.Count(x => x.emailid == email && x.Id != id) > 0;
+            }
+        }
+
+        public ActionResult EditClient(int id)
+        {
+            try
+            {
+                ClientViewModel categoryVM = new ClientViewModel();
+
+                if (id > 0)
+                {
+
+                    using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+                    {
+
+                        var client = (from n in db.AlgoExpiries
+                                      from u in db.UserDetails
+                                      where n.CustomerID == u.Id && u.Id == id
+                                      select new ClientViewModel
+                                      {
+                                          CustomerID = n.CustomerID,
+                                          AppName = n.AppName,
+                                          DateExpiry = n.DateExpiry,
+                                          DeviceID = n.DeviceID,
+                                          CustomerName = u.Name,
+                                          emailid = u.emailid,
+                                          City = u.City,
+                                          Password = u.Password,
+                                          State = u.State,
+                                          Mobile = u.Mobile
+                                      }).FirstOrDefault();
+                        categoryVM = client;
+                    }
+                }
+
+                return View(categoryVM);
+            }
+            catch (Exception)
+            {
+            }
+            return View();
+        }
+
+        public ActionResult EditReseller(int id)
+        {
+            try
+            {
+                ResellerViewModel categoryVM = new ResellerViewModel();
+
+                if (id > 0)
+                {
+
+                    using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+                    {
+
+                        var client = (from n in db.AlgoExpiries
+                                      from u in db.UserDetails
+                                      from r in db.AppSettings
+                                      where n.CustomerID == u.Id && r.ResellerId == u.Id && u.UserRole == "reseller"
+                                      select new ResellerViewModel
+                                      {
+                                          CustomerID = n.CustomerID,
+                                          AppName = n.AppName,
+                                          DateExpiry = n.DateExpiry,
+                                          DeviceID = n.DeviceID,
+                                          CustomerName = u.Name,
+                                          emailid = u.emailid,
+                                          City = u.City,
+                                          Password = u.Password,
+                                          State = u.State,
+                                          Mobile = u.Mobile,
+                                          ResellerAmount = r.Amount
+                                      }).FirstOrDefault();
+                        categoryVM = client;
+                    }
+                }
+
+                return View(categoryVM);
+            }
+            catch (Exception ex)
+            {
+            }
+            return View();
+        }
+
+        public int GetResellerAmount(int id)
+        {
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                return db.AppSettings.Where(x => x.ResellerId == id).FirstOrDefault().Amount;
+            }
+        }
+        public ActionResult ResellerPage()
+        {
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                var loggedInUser = (UserCredentials)(Session["UserCredentials"]);
+                if (loggedInUser != null)
+                {
+                    var amountUser = db.AppSettings.Where(x => x.ResellerId == loggedInUser.Id).FirstOrDefault().Amount;
+
+                    var clients = (from n in db.AlgoExpiries
+                                   from u in db.UserDetails
+                                   where u.ResellerId == loggedInUser.Id && n.CustomerID == u.Id && u.UserRole == "resellerclient" 
+                                   select new ResellerViewModel
+                                   {
+                                       CustomerID = n.CustomerID,
+                                       AppName = n.AppName,
+                                       DateExpiry = n.DateExpiry,
+                                       DeviceID = n.DeviceID,
+                                       CustomerName = u.Name,
+                                       emailid = u.emailid,
+                                       City = u.City,
+                                       MaxUser = n.MaxUser,
+                                       Password = u.Password,
+                                       State = u.State,
+                                       ResellerAmount = amountUser,
+                                       Mobile = u.Mobile
+                                   }).ToList();
+                    
+                    ViewBag.lstClients = clients;
+                }
+            }
+            return View();
+        }
+
+
+
+        public int GetResellerClients(int id)
+        {
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                if (id > 0)
+                {
+                    return (from n in db.AlgoExpiries
+                            from u in db.UserDetails
+                            where u.ResellerId == id && n.CustomerID == id && u.UserRole == "resellerclient"
+                            select u).ToList().Count();
+                }
+                return 0;
+            }
+        }
+
+        public ActionResult ViewClient(int id)
+        {
+
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                var usser = db.UserDetails.Find(id);
+                if (usser != null)
+                {
+                    ViewBag.resellerName = usser.Name;
+                }
+
+                var clients = (from n in db.AlgoExpiries
+                               from u in db.UserDetails
+                               where u.ResellerId == id && n.CustomerID == id && u.UserRole == "resellerclient"
+                               select new ClientViewModel
+                               {
+                                   CustomerID = n.CustomerID,
+                                   AppName = n.AppName,
+                                   DateExpiry = n.DateExpiry,
+                                   DeviceID = n.DeviceID,
+                                   CustomerName = u.Name,
+                                   emailid = u.emailid,
+                                   City = u.City,
+                                   Password = u.Password,
+                                   State = u.State,
+                                   Mobile = u.Mobile,
+                                   CreatedDate = u.CreatedDate
+                               }).ToList();
+                ViewBag.lstResClients = clients;
+            }
+
+            return View();
+        }
+
+        public JsonResult UpdateClient(ClientViewModel categoryVM)
+        {
+            try
+            {
+                if (categoryVM != null)
+                {
+                    if (!string.IsNullOrEmpty(categoryVM.emailid))
+                    {
+                        if (IsUserExists(categoryVM.emailid, categoryVM.CustomerID))
+                        {
+                            return Json(new { data = false, status = "Duplicate" }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+                            {
+                                var user = db.UserDetails.Find(categoryVM.CustomerID);
+                                user.City = categoryVM.City;
+                                user.Password = categoryVM.Password;
+                                user.State = categoryVM.State;
+                                user.emailid = categoryVM.emailid;
+                                user.Mobile = categoryVM.Mobile;
+                                user.Name = categoryVM.CustomerName;
+
+                                var algo = db.AlgoExpiries.Where(x => x.CustomerID == categoryVM.CustomerID).FirstOrDefault();
+                                if (algo != null)
+                                {
+                                    algo.DateExpiry = Convert.ToDateTime(categoryVM.DateExpiry).ToString("MM/dd/yyyy");
+                                    algo.DeviceID = categoryVM.DeviceID;
+                                    algo.MaxUser = categoryVM.MaxUser;
+                                }
+                                db.SaveChanges();
+                            }
+                        }
+                    }
+                }
+                return Json(new { data = true, status = "Success", error = "An Error Occurred" }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { data = false, status = "Failed", error = ex.Message.ToString() }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public JsonResult UpdateReseller(ResellerViewModel categoryVM)
+        {
+            try
+            {
+                if (categoryVM != null)
+                {
+                    if (!string.IsNullOrEmpty(categoryVM.emailid))
+                    {
+                        if (IsUserExists(categoryVM.emailid, categoryVM.CustomerID))
+                        {
+                            return Json(new { data = false, status = "Duplicate" }, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+                            {
+                                var user = db.UserDetails.Find(categoryVM.CustomerID);
+                                user.City = categoryVM.City;
+                                user.Password = categoryVM.Password;
+                                user.State = categoryVM.State;
+                                user.emailid = categoryVM.emailid;
+                                user.Mobile = categoryVM.Mobile;
+                                user.Name = categoryVM.CustomerName;
+                                user.ResellerId = categoryVM.CustomerID;
+
+                                var algo = db.AlgoExpiries.Where(x => x.CustomerID == categoryVM.CustomerID).FirstOrDefault();
+                                if (algo != null)
+                                {
+                                    algo.DateExpiry = Convert.ToDateTime(categoryVM.DateExpiry).ToString("MM/dd/yyyy");
+                                    algo.DeviceID = categoryVM.DeviceID;
+                                }
+                                var setting = db.AppSettings.Where(x => x.ResellerId == categoryVM.CustomerID).FirstOrDefault();
+                                if (setting != null)
+                                {
+                                    setting.Amount = categoryVM.ResellerAmount;
+                                }
+                                db.SaveChanges();
+                            }
+                        }
+                    }
+                }
+                return Json(new { data = true, status = "Success", error = "An Error Occurred" }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { data = false, status = "Failed", error = ex.Message.ToString() }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         public ActionResult AdminSetting()

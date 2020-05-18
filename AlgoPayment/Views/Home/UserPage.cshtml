@@ -399,7 +399,7 @@
             loadScript('https://checkout.razorpay.com/v1/checkout.js').then(function () {
                 var deviceId = $("#txtDeviceID").val();
                 window.r = new Razorpay({
-                    key: 'rzp_test_E58cAWojGwuBsZ',
+                    key: 'rzp_test_4eINMyNiQesjcj',
                     protocol: 'https',
                     hostname: 'api.razorpay.com',
                     amount: '750',
@@ -411,7 +411,6 @@
                         contact:  '@user.Mobile'
                     },
                     handler: function (transaction) {
-                        debugger
                         $.get('/Return/HandleRazorPay?deviceId=' + $("#txtDeviceID").val(), function (data) {
                             if (data != null) {
                                 if (data.status == "Failed") {

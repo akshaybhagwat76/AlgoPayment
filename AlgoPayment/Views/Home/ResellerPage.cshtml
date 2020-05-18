@@ -11,6 +11,7 @@
         return;
     }
 }
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
 
 <!--Navbar-->
 <nav class="navbar navbar-default mq-navbar">
@@ -27,6 +28,8 @@
         <div class="navbar-header collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
                 <li class="active"><a href="#">Clients</a></li>
+                <li><a id="btnLogout"><i class="icon-off"></i> Logout</a></li>
+
             </ul>
         </div>
     </div>
@@ -34,187 +37,327 @@
 
 <!-- widgets -->
 <div class="container">
-    <div class="mq-panel-wrapper">
-     
+    <button class="btn btn-success" id="addtoCart">Add to card selected</button>
 
-        <div class="mq-panel-body">
-            <ul class="mq-comment">
-                <li class="left clearfix">
-                    <span class="mq-comment-img pull-left">
-                        <img src="http://4vector.com/i/free-vector-self-portrait-by-jar_101306_Self_Portrait_by_Jar.png" width="50" alt="User Avatar" class="img-circle" />
-                    </span>
-                    <div class="mq-comment-body clearfix">
-                        <div class="header">
-                            <strong class="primary-font">John Doe</strong> <small class="pull-right text-muted">
-                                <span class="glyphicon glyphicon-time"></span>1h mins ago
-                            </small>
-                        </div>
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                            dolor, quis ullamcorper ligula sodales.
-                        </p>
-                    </div>
-                </li>
-            </ul>
+    <table class="table table-striped table-bordered table-hover" id="myTable" style="
+    /*margin-left: -255px;*/
+">
+        <thead>
+            <tr>
+                <th><input type="checkbox" name="allChecked" value="1" id="chk-all"></th>
 
-            <ul class="mq-comment">
-                <li class="left clearfix">
-                    <span class="mq-comment-img pull-left">
-                        <img src="http://scontent.cdninstagram.com/t51.2885-15/s480x480/e15/10891012_776850265697289_1379635530_n.jpg?ig_cache_key=ODk0MjE3NzczMTc2NTExMjg0.2" width="50" alt="User Avatar" class="img-circle" />
-                    </span>
-                    <div class="mq-comment-body clearfix">
-                        <div class="header">
-                            <strong class="primary-font">Jane Bas</strong> <small class="pull-right text-muted">
-                                <span class="glyphicon glyphicon-time"></span>3h ago
-                            </small>
-                        </div>
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                            dolor, quis ullamcorper ligula sodales.
-                        </p>
-                    </div>
-                </li>
-            </ul>
+                <th>
+                    Customer Name
+                </th>
+                <th>
+                    DeviceId
+                </th>
+                <th>
+                    Expiry Date
+                </th>
+                <th>
+                    Email
+                </th>
+                <th>
+                    Phone
+                </th>
+                <th>
+                    City
+                </th>
+                <th>
+                    State
+                </th>
+                <th>
+                    Max Users
+                </th>
+                <th>
+                    Per user cost
+                </th>
+                <th>
+                    Password
+                </th>
+                <th>
+                    Actions
+                </th>
+            </tr>
+        </thead>
 
-            <ul class="mq-comment">
-                <li class="left clearfix">
-                    <span class="mq-comment-img pull-left">
-                        <img src="http://4vector.com/i/free-vector-self-portrait-by-jar_101306_Self_Portrait_by_Jar.png" width="50" alt="User Avatar" class="img-circle" />
-                    </span>
-                    <div class="mq-comment-body clearfix">
-                        <div class="header">
-                            <strong class="primary-font">John Doe</strong> <small class="pull-right text-muted">
-                                <span class="glyphicon glyphicon-time"></span>5h ago
-                            </small>
-                        </div>
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                            dolor, quis ullamcorper ligula sodales.
-                        </p>
-                    </div>
-                </li>
-            </ul>
+        <tbody>
 
-            <ul class="mq-comment">
-                <li class="left clearfix">
-                    <span class="mq-comment-img pull-left">
-                        <img src="http://scontent.cdninstagram.com/t51.2885-15/s480x480/e15/10891012_776850265697289_1379635530_n.jpg?ig_cache_key=ODk0MjE3NzczMTc2NTExMjg0.2" width="50" alt="User Avatar" class="img-circle" />
-                    </span>
-                    <div class="mq-comment-body clearfix">
-                        <div class="header">
-                            <strong class="primary-font">Jane Bas</strong> <small class="pull-right text-muted">
-                                <span class="glyphicon glyphicon-time"></span>6h ago
-                            </small>
-                        </div>
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                            dolor, quis ullamcorper ligula sodales.
-                        </p>
-                    </div>
-                </li>
-            </ul>
+            @foreach (var person in (List<ResellerViewModel>)ViewBag.lstClients)
+            {
+                var n = DateTime.Parse(person.DateExpiry);
+                var m = !string.IsNullOrEmpty(person.MaxUser) ? (Convert.ToInt32(person.MaxUser) * person.ResellerAmount) : 0;
 
-            <ul class="mq-comment">
-                <li class="left clearfix">
-                    <span class="mq-comment-img pull-left">
-                        <img src="http://4vector.com/i/free-vector-self-portrait-by-jar_101306_Self_Portrait_by_Jar.png" width="50" alt="User Avatar" class="img-circle" />
-                    </span>
-                    <div class="mq-comment-body clearfix">
-                        <div class="header">
-                            <strong class="primary-font">John Doe</strong> <small class="pull-right text-muted">
-                                <span class="glyphicon glyphicon-time"></span>12h ago
-                            </small>
-                        </div>
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                            dolor, quis ullamcorper ligula sodales.
-                        </p>
-                    </div>
-                </li>
-            </ul>
+                <tr>
+                    <td>
+                        <input type="checkbox" class="chk" id="" name="id[]" data-deviceid="@person.DeviceID" data-amt="@m" value="@person.CustomerID">
+                    </td>
+                    <td>@person.CustomerName</td>
+                    <td style="width: 16.66%">@person.DeviceID</td>
+                    <td>@n.ToShortDateString()</td>
+                    <td>@person.emailid</td>
+                    <td>@person.Mobile</td>
+                    <td>@person.City</td>
+                    <td>@person.State</td>
+                    <td> @Convert.ToInt32(person.MaxUser)</td>
 
-        </div>
-    </div>
+                    <td> @m</td>
 
-    <div class="mq-panel-wrapper">
-        <div class="mq-panel-header">
-            <h3>Friends</h3>
-        </div>
+                    <td>@person.Password</td>
+                    <td width="20%">
+                        <a href="/Home/EditResellerClient/@person.CustomerID" data-id="@person.CustomerID" class="btn btn-primary">
+                            Edit
+                        </a>
+                        <a data-id="@person.CustomerID" class="btn btn-warning">
+                            Add to cart
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-        <div class="mq-panel-body">
-            <div class="mq-friends thumbnail">
-                <div class="mq-friend-img text-center">
-                    <img src="http://scontent.cdninstagram.com/t51.2885-15/s480x480/e15/10891012_776850265697289_1379635530_n.jpg?ig_cache_key=ODk0MjE3NzczMTc2NTExMjg0.2" width="50" alt="User Avatar" class="img-circle" />
-                </div>
 
-                <div class="mq-friends-footer">
-                    <small>Jon Snow </small>
-                </div>
+
+</div>
+<div class="modal fade" id="deleteModal" data-custom- tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <h4 style="display: block;">You will not be able to make client after you proceed</h4>
             </div>
-
-            <div class="mq-friends thumbnail">
-                <div class="mq-friend-img text-center">
-                    <img src="http://4vector.com/i/free-vector-self-portrait-by-jar_101306_Self_Portrait_by_Jar.png" width="50" alt="User Avatar" class="img-circle" />
-                </div>
-
-                <div class="mq-friends-footer">
-                    <small>Mark Kellem </small>
-                </div>
-            </div>
-
-            <div class="mq-friends thumbnail">
-                <div class="mq-friend-img text-center">
-                    <img src="http://scontent.cdninstagram.com/t51.2885-15/s480x480/e15/10891012_776850265697289_1379635530_n.jpg?ig_cache_key=ODk0MjE3NzczMTc2NTExMjg0.2" width="50" alt="User Avatar" class="img-circle" />
-                </div>
-
-                <div class="mq-friends-footer">
-                    <small>John Doe </small>
-                </div>
-            </div>
-
-            <div class="mq-friends thumbnail">
-                <div class="mq-friend-img text-center">
-                    <img src="http://4vector.com/i/free-vector-self-portrait-by-jar_101306_Self_Portrait_by_Jar.png" width="50" alt="User Avatar" class="img-circle" />
-                </div>
-
-                <div class="mq-friends-footer">
-                    <small>Jane Bas </small>
-                </div>
-            </div>
-
-            <div class="mq-friends thumbnail">
-                <div class="mq-friend-img text-center">
-                    <img src="http://4vector.com/i/free-vector-self-portrait-by-jar_101306_Self_Portrait_by_Jar.png" width="50" alt="User Avatar" class="img-circle" />
-                </div>
-
-                <div class="mq-friends-footer">
-                    <small>John </small>
-                </div>
-            </div>
-
-            <div class="mq-friends thumbnail">
-                <div class="mq-friend-img text-center">
-                    <img src="http://4vector.com/i/free-vector-self-portrait-by-jar_101306_Self_Portrait_by_Jar.png" width="50" alt="User Avatar" class="img-circle" />
-                </div>
-
-                <div class="mq-friends-footer">
-                    <small>WFH </small>
-                </div>
-            </div>
-
-            <div class="mq-friends thumbnail">
-                <div class="mq-friend-img text-center">
-                    <img src="http://4vector.com/i/free-vector-self-portrait-by-jar_101306_Self_Portrait_by_Jar.png" width="50" alt="User Avatar" class="img-circle" />
-                </div>
-
-                <div class="mq-friends-footer">
-                    <small>PTO </small>
-                </div>
+            <div class="modal-footer" style="text-align:center !important">
+                <button class="btn btn-default" tabindex="2" data-dismiss="modal">No, cancel pls!</button>
+                <button class="btn btn-danger" id="delete-btn">Proceed!</button>
             </div>
         </div>
     </div>
 </div>
 
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />
+<script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.4.2/sha.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script>
+    var values = null; var totalAmount = 0; var oTable = null;
+
+    function setCookie(c_name, value, exdays) {
+        var exdate = new Date();
+        exdate.setDate(exdate.getDate() + exdays);
+        var c_value = escape(value) + ((exdays == null) ? "" : "; expires=" + exdate.toUTCString());
+        document.cookie = c_name + "=" + c_value;
+    }
+
+    function getCookie(c_name) {
+        var i, x, y, ARRcookies = document.cookie.split(";");
+        for (i = 0; i < ARRcookies.length; i++) {
+            x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+            y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+            x = x.replace(/^\s+|\s+$/g, "");
+            if (x == c_name) {
+                return unescape(y);
+            }
+        }
+    }
+
+
+    $("#addtoCart").on("click", function () {
+        values = []; totalAmount = 0;
+
+         oTable.$('input:checked').each(function () {
+            var obj = {};
+            obj.id = $(this).val();
+            obj.amt = $(this).data('amt');
+            values.push(obj);
+        });
+
+        if (values == undefined || values.length == 0 || values == []) {
+            toastr.error('Please select atleast one checkbox for add to cart');
+            return;
+        }
+        else {
+            $.each(values, function (i, a) {
+                totalAmount += parseInt(a.amt)
+            })
+            var key = '@System.Configuration.ConfigurationManager.AppSettings["PaymentOption"].ToString()';
+            if (key == "RazorPay") {
+                var options = {
+                    "key": "rzp_test_4eINMyNiQesjcj", // Enter the Key ID generated from the Dashboard
+                    "amount": totalAmount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                    "currency": "INR",
+                    "name": '@user.Name',
+                    "description":'@user.Name users',
+                    "handler": function (response) {
+                        $.get('/Return/HandleResellerPayments?param=' + JSON.stringify(values), function (data) {
+                            if (data != null) {
+                                if (data.status == "Failed") {
+                                    location.href = '/Home/ResellerFail';
+                                }
+                                else {
+                                    location.href = '/Home/ResellerSuccess';
+                                }
+                            }
+                        });
+                    },
+                    "prefill": {
+                        "name":'@user.Name',
+                        "email": '@user.emailid',
+                        "contact":'@user.Mobile'
+                    },
+                    "theme": {
+                        "color": "#F37254"
+                    }
+                };
+                var rzp1 = new Razorpay(options);
+                    rzp1.open();
+                    e.preventDefault();
+            }
+            else {
+                    var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
+                var uid = getRandomInt();
+                var totalPrice = totalAmount;
+                    var productInfo = '@user.Name users payment';
+                    var recipient_name = '@user.Name';
+                    var email = '@user.emailid';
+                    var merchantSalt = '@System.Configuration.ConfigurationManager.AppSettings["SALT"]';
+                var hashString = merchantKey + '|' + uid + '|' + totalPrice + '|' + productInfo + '|' + recipient_name + '|' + email + '|'+ JSON.stringify(values)+'||||||||||' + merchantSalt;
+                    var shaObj = new jsSHA("SHA-512", "TEXT");
+                    shaObj.update(hashString);
+                    var hash = shaObj.getHash("HEX");
+
+                    var key1 = $('<input></input>').attr('type', 'hidden').attr('name', "key").val(merchantKey);
+                    var key2 = $('<input></input>').attr('type', 'hidden').attr('name', "txnid").val(uid);
+
+                    var key3 = $('<input></input>').attr('type', 'hidden').attr('name', "amount").val(totalPrice);
+
+                    var key4 = $('<input></input>').attr('type', 'hidden').attr('name', "productinfo").val(productInfo);
+
+                    var key5 = $('<input></input>').attr('type', 'hidden').attr('name', "firstname").val(recipient_name);
+
+                    var key6 = $('<input></input>').attr('type', 'hidden').attr('name', "email").val(email);
+
+                var key7 = $('<input></input>').attr('type', 'hidden').attr('name', "phone").val('@user.Mobile');
+                var key12 = $('<input></input>').attr('type', 'hidden').attr('name', "udf1").val(JSON.stringify(values));
+                debugger
+                setCookie('usersPayment', JSON.stringify(values), 1);
+
+                var key8 = $('<input></input>').attr('type', 'hidden').attr('name', "surl").val(window.location.origin + '/Return/ResellerPayU');
+
+                var key9 = $('<input></input>').attr('type', 'hidden').attr('name', "furl").val(window.location.origin + '/Home/ResellerFail');
+
+                    var key10 = $('<input></input>').attr('type', 'hidden').attr('name', "hash").val(hash);
+
+                    var key11 = $('<input></input>').attr('type', 'hidden').attr('name', "service_provider").val();
+
+
+                    var form = $('<form/></form>');
+
+                    form.attr("id", "payuform");
+
+                    form.attr("action", '@System.Configuration.ConfigurationManager.AppSettings["PAYU_BASE_URL"]');
+
+                    form.attr("method", "POST");
+
+                    form.attr("style", "display:none;");
+
+                    form.append(key1, key2, key3, key4, key5, key6, key7, key8, key9, key10, key11,key12);
+
+                    $("body").append(form);
+                    form.submit();
+            }
+        }
+    })
+     var loadScript = function (path) {
+                var result = $.Deferred(),
+                    script = document.createElement("script");
+
+                script.async = "async";
+                script.type = "text/javascript";
+                script.src = path;
+                script.onload = script.onreadystatechange = function (_, isAbort) {
+                    if (!script.readyState || /loaded|complete/.test(script.readyState)) {
+                        if (isAbort)
+                            result.reject();
+                        else
+                            result.resolve();
+                    }
+                };
+
+                script.onerror = function () {
+                    result.reject();
+                };
+
+                $("head")[0].appendChild(script);
+
+                return result.promise();
+            }
+
+       function getRandomInt() {
+                  return Math.floor(100000 + Math.random() * 900000);
+             }
+
+
+    $(function () {
+         oTable = $('#myTable').dataTable({
+            stateSave: true
+        });
+        toastr.options.timeOut = 1500; // 1.5s
+
+        var allPages = oTable.fnGetNodes();
+
+        $('body').on('click', '#chk-all', function () {
+            if ($(this).hasClass('allChecked')) {
+                $('input[type="checkbox"]', allPages).prop('checked', false);
+            } else {
+                $('input[type="checkbox"]', allPages).prop('checked', true);
+            }
+            $(this).toggleClass('allChecked');
+        })
+
+    })
+
+    $("#btnLogout").click(function () {
+        $.get('/Home/Logout', function (data) {
+            if (data == "Cleared") {
+                location.href = "/Home/Index";
+            }
+        });
+    });
+
+    $("#myTable").on("click", "a.btn-warning", function () {
+        var id = $(this).data('id');
+        $('#deleteModal').data('id', id).modal('show');
+        $('#deleteModal').modal('show');
+    });
+
+    $('#delete-btn').click(function () {
+        var id = $('#deleteModal').data('id');
+
+        $.ajax({
+            type: "POST",
+            url: "/Home/DeleteClient",
+            data: { id: id },
+            success: function (response) {
+                if (response.status != "Failed") {
+                    $('#deleteModal').modal('hide');
+                    location.reload();
+                }
+                else {
+                    $('#deleteModal').modal('hide');
+                }
+            },
+            error: function (error) {
+                toastr.error(error)
+            }
+        });
+    });
+
+</script>
 <style>
     .mq-navbar {
         border-radius: 0px;
@@ -222,10 +365,43 @@
         color: #fff;
     }
 
+    td {
+        word-break: break-word;
+    }
+
+    tr {
+        page-break-inside: avoid
+    }
+    /*th {
+        max-width: 150px;
+        max-height: 150px;
+        overflow: hidden;
+        word-wrap: break-word;
+    }
+    td {
+        max-width: 150px;
+        max-height: 150px;
+        overflow: hidden;
+        word-wrap: break-word;
+    }*/
+    .ui-datatable .ui-datatable-data > tr > td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap
+    }
+
     .mq-dropdown {
         margin-top: 10px !important;
         padding: 0px !important;
         background-color: #76b9ea;
+    }
+
+    table {
+        margin: 0 auto;
+        width: 100%;
+        clear: both;
+        border-collapse: collapse;
+        table-layout: fixed;
     }
 
     .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {

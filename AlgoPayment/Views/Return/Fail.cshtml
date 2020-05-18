@@ -1,10 +1,18 @@
-﻿
+﻿@using AlgoPayment.VideModel;
+
 @{
     ViewBag.Title = "Fail";
 
+    UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
+    if (user == null)
+    {
+        Response.Redirect("~/Home/Index");
+        return;
+    }
 }
 
 
-<h2>Status was failed. Payment was unsuccessfull</h2>
+    <h2>Status was failed. Payment was unsuccessfull</h2>
 
-<a href="/Home/UserPage">Back to site</a>
+
+    <a href="/Home/UserPage">Back to site</a>

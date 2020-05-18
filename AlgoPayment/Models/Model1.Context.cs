@@ -25,8 +25,8 @@ namespace AlgoPayment.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public DbSet<UserDetail> UserDetails { get; set; }
         public DbSet<AlgoExpiry> AlgoExpiries { get; set; }
         public DbSet<AppSetting> AppSettings { get; set; }
+        public DbSet<UserDetail> UserDetails { get; set; }
     }
 }

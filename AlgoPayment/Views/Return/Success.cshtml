@@ -1,10 +1,16 @@
-﻿
+﻿@using AlgoPayment.VideModel;
+
 @{
     ViewBag.Title = "Success";
 
+    UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
+    if (user == null)
+    {
+        Response.Redirect("~/Home/Index");
+        return;
+    }
 }
 
-    <h2>Status was successful. Your validity is extended</h2>
-
+<h2>Status was successful. Your validity is extended</h2>
 
     <a href="/Home/UserPage">Back to site</a>

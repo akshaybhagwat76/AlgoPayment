@@ -1,0 +1,403 @@
+﻿@using AlgoPayment.VideModel;
+@using System.Web.Configuration;
+@model AlgoPayment.VideModel.ClientViewModel
+
+@{
+    ViewBag.Title = "Edit Client";
+    Layout = null;
+
+    UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
+    if (user == null)
+    {
+        Response.Redirect("/Home/Index");
+        return;
+    }
+}
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.min.css" />
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker3.min.css" />
+<!--Navbar-->
+<nav class="navbar navbar-default mq-navbar">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Hi @user.Name</a>
+        </div>
+
+        <div class="navbar-header collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li><a class="active" href="/Home/AdminPage">Clients</a></li>
+                <li><a href="/Home/AdminResellers">Resellers</a></li>
+                <li><a href="/Home/AdminSetting">Settings</a></li>
+                <li><a id="btnLogout"><i class="icon-off"></i> Logout</a></li>
+            </ul>
+        </div>
+
+    </div>
+</nav>
+
+<!-- widgets -->
+<div class="container">
+    <div>
+
+
+        <div class="mq-panel-body">
+            <div class="row">
+                <form id="myForm" class="m-t" role="form" action="javascript:;">
+                    <div class="form-horizontal">
+                        @Html.HiddenFor(model => model.CustomerID)
+                        <div class="form-group">
+                            @Html.Label("Customer Name", new { @class = "control-label col-md-2 requiredLabel" })
+                            <div class="col-md-5">
+                                @Html.EditorFor(model => model.CustomerName, new { htmlAttributes = new { @class = "form-control required" } })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.Label("Email", new { @class = "control-label col-md-2" })
+                            <div class="col-md-4">
+                                @Html.EditorFor(model => model.emailid, new { htmlAttributes = new { @class = "form-control required" } })
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.Label("Device ID", new { @class = "control-label col-md-2" })
+                            <div class="col-md-2">
+                                @Html.EditorFor(model => model.DeviceID, new { htmlAttributes = new { @class = "form-control required" } })
+
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            @Html.Label("Phone", new { @class = "control-label col-md-2" })
+                            <div class="col-md-2">
+                                @Html.EditorFor(model => model.Mobile, new { htmlAttributes = new { @class = "form-control required" } })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.Label("City", new { @class = "control-label col-md-2" })
+                            <div class="col-md-2">
+                                @Html.EditorFor(model => model.City, new { htmlAttributes = new { @class = "form-control required" } })
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            @Html.Label("State", new { @class = "control-label col-md-2" })
+                            <div class="col-md-2">
+                                @Html.EditorFor(model => model.State, new { htmlAttributes = new { @class = "form-control required" } })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @Html.Label("Date Expiry", new { @class = "control-label col-md-2" })
+                            <div class="col-md-2">
+                                <div class="input-group input-append date" id="datePicker">
+                                    <input type="text" class="form-control" name="DateExpiry" value="@Model.DateExpiry" />
+                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            @Html.Label("Password", new { @class = "control-label col-md-2" })
+                            <div class="col-md-2">
+                                <input type="password" name="Password" placeholder="Password" class="form-control required" value="@Model.Password" />
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <input type="submit" id="btn-submit" value="Save" class="btn btn-primary" />
+                                <a href="/Home/AdminPage" class="btn btn-default">Cancel</a>
+                                <label id="lblError" class="inline"></label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.min.js"></script>
+<script>
+
+    $("#btnLogout").click(function () {
+        $.get('/Home/Logout', function (data) {
+            if (data == "Cleared") {
+                location.href = "/Home/Index";
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $('#datePicker')
+            .datepicker({
+                format: 'mm/dd/yyyy'
+            })
+            .on('changeDate', function (e) {
+                // Revalidate the date field
+                $('#datePicker').datepicker('hide');
+            });
+
+        toastr.options.timeOut = 1500; // 1.5s
+
+        $("#lblError").removeClass("success").removeClass("error").text('');
+
+        $("#btn-submit").on("click", function () {
+            $("#lblError").removeClass("success").removeClass("error").text('');
+            var retval = true;
+            $("#myForm .required").each(function () {
+                if (!$(this).val()) {
+                    $(this).addClass("error");
+                    retval = false;
+                }
+                else {
+                    $(this).removeClass("error");
+                }
+            });
+            if (retval) {
+                var formData = $("#myForm").serializeObject();
+                $.ajax({
+                    type: "POST",
+                    url: "/Home/UpdateClient",
+                    data: { categoryVM: formData },
+                    success: function (data) {
+                        if (data.status == "Failed") {
+                            $("#lblError").addClass("error").text(data.error).show();
+                        }
+                        else if (data.status === "Duplicate") {
+                            $("#emailid").addClass("error");
+                            toastr.error("Email already exist with other user account try different");
+                        }
+                        else {
+                            window.location.href = '/Home/AdminPage'
+                        }
+                    }
+                });
+            }
+        })
+    })
+    $.fn.serializeObject = function () {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function () {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+</script>
+
+<style>
+
+    .radiotextsty {
+        color: #A5A4BF;
+        font-size: 18px;
+    }
+
+    .customradio {
+        display: block;
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 0px;
+        cursor: pointer;
+        font-size: 18px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    label#lblError {
+        display: block;
+        text-align: center;
+    }
+
+    input.error, select.error, div.error {
+        border: 2px dotted #cc5965;
+    }
+
+    label.success {
+        color: #5cb85c;
+        display: inline-block;
+        margin-left: 5px;
+    }
+    /* Validation */
+    label.error {
+        color: #cc5965;
+        display: inline-block;
+        margin-left: 5px;
+    }
+
+    /* Hide the browser's default radio button */
+    .customradio input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    /* Create a custom radio button */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 22px;
+        width: 22px;
+        background-color: white;
+        border-radius: 50%;
+        border: 1px solid #BEBEBE;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .customradio:hover input ~ .checkmark {
+        background-color: transparent;
+    }
+
+    /* When the radio button is checked, add a blue background */
+    .customradio input:checked ~ .checkmark {
+        background-color: white;
+        border: 1px solid #BEBEBE;
+    }
+
+    /* Create the indicator (the dot/circle - hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the indicator (dot/circle) when checked */
+    .customradio input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the indicator (dot/circle) */
+    .customradio .checkmark:after {
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #A3A0FB;
+    }
+
+    .mq-navbar {
+        border-radius: 0px;
+        background-color: #2d2d2d;
+        color: #fff;
+    }
+
+    .mq-dropdown {
+        margin-top: 10px !important;
+        padding: 0px !important;
+        background-color: #76b9ea;
+    }
+
+    .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+        color: #fff !important;
+        background-color: #1c1c1c;
+    }
+
+    .mq-comment {
+        list-style: none;
+        margin-bottom: 10px;
+        padding: 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .comment li {
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px dotted #B3A9A9;
+    }
+
+    .mq-comment-img {
+        margin-right: 10px;
+    }
+
+    .mq-panel-wrapper {
+        width: 45%;
+        height: 300px;
+        background-color: #2d2d2d;
+        margin: 20px;
+        float: left;
+        border: 1px solid #330033;
+        box-shadow: 0px 0px 20px 0px #2d2d2d;
+        border-radius: 0px 0px 5px 5px;
+    }
+
+    .mq-panel-header {
+        width: 100%;
+        height: 60px;
+        background-color: #1c1c1c;
+        padding: 10px;
+        display: table;
+        position: relative;
+    }
+
+        .mq-panel-header h3 {
+            color: #fff;
+            font-size: 12pt;
+            font-weight: 300;
+            letter-spacing: 1px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+    .mq-panel-body {
+        width: 100%;
+        max-height: 800px;
+        padding: 10px;
+        background-color: #eee;
+        border-radius: 0px 0px 5px 5px;
+    }
+
+    .mq-friends {
+        width: 31.3%;
+        height: 100px;
+        padding: 0;
+        position: relative;
+        display: table;
+        float: left;
+        margin: 0px 10px 10px 0px;
+    }
+
+        .mq-friends:hover {
+            transition: .6s;
+            transform: scale(.9);
+        }
+
+    .mq-friend-img {
+        padding-top: 10px;
+    }
+
+    .mq-friends-footer {
+        width: 100%;
+        background-color: #3399ff;
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        color: #fff;
+    }
+</style>

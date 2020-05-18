@@ -5,7 +5,7 @@ using System.Web;
 
 namespace AlgoPayment.VideModel
 {
-    public class ClientViewModel
+    public class ResellerViewModel
     {
         public string DateExpiry { get; set; }
         public string DeviceID { get; set; }
@@ -18,6 +18,8 @@ namespace AlgoPayment.VideModel
         public string City { get; set; }
         public string State { get; set; }
         public string Password { get; set; }
-        public System.DateTime CreatedDate { get; set; }
+        public int ResellerAmount { get; set; }
+        public int ResellerClient { get; set; }
+
     }
 }

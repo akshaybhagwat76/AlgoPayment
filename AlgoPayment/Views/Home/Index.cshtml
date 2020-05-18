@@ -541,9 +541,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
                     type: 'POST',
                     data: data,
                     success: function (data) {
-                        debugger
                         if (data != null) {
-                            
                             if (data.status == "Failed") {
                                 toastr.error(data.data);
                             }

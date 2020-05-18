@@ -10,7 +10,7 @@ using System.Web.Mvc;
 
 namespace AlgoPayment.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private eponym_app_licenseEntities db = new eponym_app_licenseEntities();
         public ActionResult Index()

@@ -25,5 +25,6 @@ namespace AlgoPayment.Models
         public System.DateTime CreatedDate { get; set; }
         public bool IsEmailVerified { get; set; }
         public string UserRole { get; set; }
+        public int ResellerId { get; set; }
     }
 }

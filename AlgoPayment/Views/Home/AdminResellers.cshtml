@@ -1,7 +1,7 @@
 ﻿@using AlgoPayment.VideModel;
 
 @{
-    ViewBag.Title = "ResellerPage";
+    ViewBag.Title = "Admin Resellers";
     Layout = null;
 
     UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
@@ -27,8 +27,8 @@
 
         <div class="navbar-header collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Clients</a></li>
-                <li><a href="/Home/AdminResellers">Resellers</a></li>
+                <li><a href="/Home/AdminPage">Clients</a></li>
+                <li class="active"><a href="/Home/AdminResellers">Resellers</a></li>
                 <li><a href="/Home/AdminSetting">Settings</a></li>
                 <li><a id="btnLogout"><i class="icon-off"></i> Logout</a></li>
 
@@ -43,7 +43,7 @@
         <thead>
             <tr>
                 <th>
-                    Customer Name
+                    Reseller Name
                 </th>
                 <th>
                     DeviceId
@@ -67,6 +67,9 @@
                     Password
                 </th>
                 <th>
+                    Per user cost
+                </th>
+                <th>
                     Actions
                 </th>
             </tr>
@@ -74,9 +77,10 @@
 
         <tbody>
 
-            @foreach (var person in (List<ClientViewModel>)ViewBag.lstClients)
+            @foreach (var person in (List<ResellerViewModel>)ViewBag.lstResellers)
             {
                 var n = DateTime.Parse(person.DateExpiry);
+                var amount = !string.IsNullOrEmpty(person.MaxUser) ? (person.ResellerAmount * Convert.ToInt32(person.MaxUser)) : 0;
                 <tr>
                     <td>@person.CustomerName</td>
                     <td>@person.DeviceID</td>
@@ -86,12 +90,16 @@
                     <td>@person.City</td>
                     <td>@person.State</td>
                     <td>@person.Password</td>
+                    <td>@person.ResellerAmount</td>
                     <td width="20%">
-                        <a href="/Home/EditClient/@person.CustomerID" data-id="@person.CustomerID" class="btn btn-primary">
-                            Edit
-                        </a>
+                        @*<a href="/Home/EditReseller/@person.CustomerID" data-id="@person.CustomerID" class="btn btn-primary">
+            Edit
+        </a>
+        <a href="/Home/ViewClient/@person.CustomerID" data-id="@person.CustomerID" class="btn btn-warning">
+            View Clients
+        </a>*@
                         <a data-id="@person.CustomerID" class="btn btn-warning">
-                            Make Reseller
+                            Add to client
                         </a>
                     </td>
                 </tr>
@@ -102,21 +110,7 @@
 
 
 </div>
-<div class="modal fade" id="deleteModal" data-custom- tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-body text-center">
-                <h4>Amount </h4>: <input type="number" class="form-control" min="1" max="9999999" id="resellerAmount" />
-                
-                <h4 style="display: block;">You will not be able to make client after you proceed</h4>
-            </div>
-            <div class="modal-footer" style="text-align:center !important">
-                <button class="btn btn-default" tabindex="2" data-dismiss="modal">No, cancel pls!</button>
-                <button class="btn btn-success" id="delete-btn">Proceed!</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <script src="~/Scripts/jquery-3.4.1.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
@@ -128,44 +122,13 @@
 
     $(function () {
         $("#myTable").dataTable();
+        toastr.options.timeOut = 1500; // 1.5s
+
     })
     $("#btnLogout").click(function () {
         $.get('/Home/Logout', function (data) {
             if (data == "Cleared") {
                 location.href = "/Home/Index";
-            }
-        });
-    });
-
-    $("#myTable").on("click", "a.btn-warning", function () {
-        var id = $(this).data('id');
-        $('#deleteModal').data('id', id).modal('show');
-        $('#deleteModal').modal('show');
-    });
-
-    $('#delete-btn').click(function () {
-        var id = $('#deleteModal').data('id');
-
-        if ($("#resellerAmount").val() == null || $("#resellerAmount").val() == '') {
-            toastr.error('Reseller Per User Cost Amount id required');
-            return;
-        }
-        $.ajax({
-            type: "POST",
-            url: "/Home/MarkAsReseller",
-            data: { param: id + ',' + $("#resellerAmount").val() },
-            success: function (response) {
-                if (response.status != "Failed") {
-                    $('#deleteModal').modal('hide');
-                    location.reload();
-                }
-                else {
-                    $('#deleteModal').modal('hide');
-                    funToastr(false, response.error);
-                }
-            },
-            error: function (error) {
-                toastr.error(error)
             }
         });
     });
