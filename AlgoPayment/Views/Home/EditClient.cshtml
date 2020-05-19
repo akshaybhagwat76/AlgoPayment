@@ -5,6 +5,9 @@
 @{
     ViewBag.Title = "Edit Client";
     Layout = null;
+    var MaxUser = Model!=null? Convert.ToInt32(Model.MaxUser):0;
+    var DateExpiry = Model!=null? Model.DateExpiry:"";
+    var Password = Model != null ? Model.Password : "";
 
     UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
     if (user == null)
@@ -96,7 +99,7 @@
                         <div class="form-group">
                             @Html.Label("Max user", new { @class = "control-label col-md-2" })
                             <div class="col-md-2">
-                                <input type="number" class="form-control" value="@Model.MaxUser" name="MaxUser" min="1" max="9999999" id="txtMaxUser" />
+                                <input type="number" class="form-control" value="@MaxUser" name="MaxUser" min="1" max="9999999" id="txtMaxUser" />
                             </div>
                         </div>
 
@@ -104,7 +107,7 @@
                             @Html.Label("Date Expiry", new { @class = "control-label col-md-2" })
                             <div class="col-md-2">
                                 <div class="input-group input-append date" id="datePicker">
-                                    <input type="text" class="form-control" name="DateExpiry" value="@Model.DateExpiry" />
+                                    <input type="text" class="form-control" name="DateExpiry" value="@DateExpiry" />
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                             </div>
@@ -114,7 +117,7 @@
                         <div class="form-group">
                             @Html.Label("Password", new { @class = "control-label col-md-2" })
                             <div class="col-md-2">
-                                <input type="password" name="Password" placeholder="Password" class="form-control required" value="@Model.Password" />
+                                <input type="password" name="Password" placeholder="Password" class="form-control required" value="@Password" />
                             </div>
                         </div>
 

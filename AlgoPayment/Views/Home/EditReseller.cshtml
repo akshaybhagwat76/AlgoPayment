@@ -3,7 +3,7 @@
 @model AlgoPayment.VideModel.ResellerViewModel
 
 @{
-    ViewBag.Title = "Edit Client";
+    ViewBag.Title = "Edit Reseller";
     Layout = null;
 
     UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
@@ -100,7 +100,7 @@
                             @Html.Label("Date Expiry", new { @class = "control-label col-md-2" })
                             <div class="col-md-2">
                                 <div class="input-group input-append date" id="datePicker">
-                                    <input type="text" class="form-control" name="DateExpiry" value="@Model.DateExpiry" />
+                                    <input type="text" class="form-control required" name="DateExpiry" value="@Model.DateExpiry" />
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                             </div>
@@ -125,7 +125,7 @@
                         <div class="form-group">
                             <div class="col-md-offset-2 col-md-10">
                                 <input type="submit" id="btn-submit" value="Save" class="btn btn-primary" />
-                                <a href="/Home/ResellerPage" class="btn btn-default">Cancel</a>
+                                <a href="/Home/AdminResellers" class="btn btn-default">Cancel</a>
                                 <label id="lblError" class="inline"></label>
                             </div>
                         </div>

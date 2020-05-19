@@ -27,7 +27,7 @@
 
         <div class="navbar-header collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-                <li ><a href="#">Clients</a></li>
+                <li ><a  href="/Home/AdminPage">Clients</a></li>
                 <li class="active"><a href="/Home/AdminResellers">Resellers</a></li>
                 <li><a href="/Home/AdminSetting">Settings</a></li>
                 <li><a id="btnLogout"><i class="icon-off"></i> Logout</a></li>
@@ -85,12 +85,10 @@
             @foreach (var person in (List<ClientViewModel>)ViewBag.lstResClients)
             {
 
-                var n = DateTime.Parse(person.DateExpiry);
-
             <tr>
                 <td>@person.CustomerName</td>
                 <td width="10%">@person.DeviceID</td>
-                <td>@n.ToShortDateString()</td>
+                <td>@person.DateExpiry</td>
                 <td>@person.emailid</td>
                 <td>@person.Mobile</td>
                 <td>@person.City</td>

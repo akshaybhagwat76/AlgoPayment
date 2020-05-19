@@ -89,7 +89,7 @@ namespace AlgoPayment.Controllers
             {
                 using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                 {
-                        var user = db.UserDetails.Where(x => x.emailid == data.emailid && x.Password == data.Password).FirstOrDefault();
+                    var user = db.UserDetails.Where(x => x.emailid == data.emailid && x.Password == data.Password).FirstOrDefault();
                     if (user != null && !user.IsEmailVerified)
                     {
                         return Json(new { data = "Account not email confirmed", status = "Failed" }, JsonRequestBehavior.AllowGet);
@@ -215,7 +215,7 @@ namespace AlgoPayment.Controllers
         {
             using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
             {
-                var user = db.UserDetails.Where(x=>x.UserRole.Contains("client")).ToList();
+                var user = db.UserDetails.Where(x => x.UserRole.Contains("client")).ToList();
                 var algo = db.AlgoExpiries.ToList();
                 List<ClientViewModel> lst = new List<ClientViewModel>();
 
@@ -225,8 +225,8 @@ namespace AlgoPayment.Controllers
                     var pay = algo.Where(x => x.CustomerID == item.Id).FirstOrDefault();
                     obj.CustomerID = item.Id;
                     obj.AppName = pay != null ? pay.AppName : "N/A";
-                    obj.DateExpiry = pay != null ? Convert.ToDateTime(pay.DateExpiry).ToShortDateString() : "N/A";
-                    obj.DeviceID = pay != null ? pay.DeviceID: "N/A";
+                    obj.DateExpiry = pay != null ? pay.DateExpiry : "N/A";
+                    obj.DeviceID = pay != null ? pay.DeviceID : "N/A";
                     obj.CustomerName = item.Name;
                     obj.emailid = item.emailid;
                     obj.City = item.City;
@@ -236,10 +236,52 @@ namespace AlgoPayment.Controllers
                     lst.Add(obj);
                 }
 
+                ViewBag.lstClients = lst;
+            }
+
+            return View();
+        }
+
+
+
+        public ActionResult AdminResellers()
+        {
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                var users = db.UserDetails.Where(x => x.UserRole == "reseller").ToList();
+                var settings = db.AppSettings.ToList();
+                var algo = db.AlgoExpiries.ToList();
+                List<ResellerViewModel> lst = new List<ResellerViewModel>();
+
+                foreach (var item in users)
+                {
+                    var auser = algo.Where(x => x.CustomerID == item.Id).FirstOrDefault();
+                    var amount = settings.Where(x => x.ResellerId == item.Id).FirstOrDefault().Amount;
+                    ResellerViewModel obj = new ResellerViewModel();
+                    obj.CustomerID = item.Id;
+                    obj.AppName = auser != null ? auser.AppName : "N/A";
+
+                    obj.DateExpiry = auser != null ? auser.DateExpiry : "N/A";
+                    obj.DeviceID = auser != null ? auser.DeviceID : "N/A";
+                    obj.CustomerName = item.Name;
+                    obj.City = item.City;
+                    obj.Password = item.Password;
+                    obj.State = item.State;
+                    obj.Mobile = item.Mobile;
+                    obj.ResellerAmount = amount;
+
+                    //if (lst.Any(x => x.CustomerID != obj.CustomerID))
+                    //{
+                        lst.Add(obj);
+
+                    //}
+                }
+
                 //var clients = (from n in db.AlgoExpiries
                 //               from u in db.UserDetails
-                //               where u.Id == n.CustomerID 
-                //               select new ClientViewModel
+                //               from r in db.AppSettings
+                //               where n.CustomerID == u.Id && r.ResellerId == u.Id && u.UserRole == "reseller"
+                //               select new ResellerViewModel
                 //               {
                 //                   CustomerID = n.CustomerID,
                 //                   AppName = n.AppName,
@@ -250,40 +292,10 @@ namespace AlgoPayment.Controllers
                 //                   City = u.City,
                 //                   Password = u.Password,
                 //                   State = u.State,
-                //                   Mobile = u.Mobile
-                //               }).DistinctBy(x=>x.emailid).ToList();
-
-                ViewBag.lstClients = lst;
-            }
-
-            return View();
-        }
-
-
-  
-        public ActionResult AdminResellers()
-        {
-            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
-            {
-                var clients = (from n in db.AlgoExpiries
-                               from u in db.UserDetails
-                               from r in db.AppSettings
-                               where n.CustomerID == u.Id && r.ResellerId == u.Id && u.UserRole == "reseller"
-                               select new ResellerViewModel
-                               {
-                                   CustomerID = n.CustomerID,
-                                   AppName = n.AppName,
-                                   DateExpiry = n.DateExpiry,
-                                   DeviceID = n.DeviceID,
-                                   CustomerName = u.Name,
-                                   emailid = u.emailid,
-                                   City = u.City,
-                                   Password = u.Password,
-                                   State = u.State,
-                                   Mobile = u.Mobile,
-                                   ResellerAmount = r.Amount
-                               }).DistinctBy(x => x.CustomerID).ToList();
-                ViewBag.lstResellers = clients;
+                //                   Mobile = u.Mobile,
+                //                   ResellerAmount = r.Amount
+                //               }).DistinctBy(x => x.CustomerID).ToList();
+                ViewBag.lstResellers = lst;
             }
 
             return View();
@@ -294,7 +306,7 @@ namespace AlgoPayment.Controllers
         {
             using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
             {
-                if (id>0)
+                if (id > 0)
                 {
                     var user = db.UserDetails.Find(id);
                     if (user != null)
@@ -316,7 +328,7 @@ namespace AlgoPayment.Controllers
             return Json(new { data = false, status = "Failed" }, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult EditResellerClient( int id)
+        public ActionResult EditResellerClient(int id)
         {
             try
             {
@@ -348,7 +360,6 @@ namespace AlgoPayment.Controllers
                         categoryVM = client;
                     }
                 }
-
                 return View(categoryVM);
             }
             catch (Exception ex)
@@ -365,12 +376,13 @@ namespace AlgoPayment.Controllers
                 if (!string.IsNullOrEmpty(param))
                 {
                     var user = db.UserDetails.Find(int.Parse(param.Split(',')[0]));
-                    if (user == null)
+                    if (user != null)
                     {
                         try
                         {
                             user.UserRole = "reseller";
-                            var setting = db.AppSettings.Where(x => x.ResellerId == int.Parse(param.Split(',')[0])).FirstOrDefault();
+                            var uid = Convert.ToInt32(param.Split(',')[0].ToString());
+                            var setting = db.AppSettings.Where(x => x.ResellerId == uid).FirstOrDefault();
                             if (setting == null)
                             {
                                 db.AppSettings.Add(new AppSetting { Amount = int.Parse(param.Split(',')[1]), ResellerId = int.Parse(param.Split(',')[0]) });
@@ -387,7 +399,7 @@ namespace AlgoPayment.Controllers
                             throw new Exception(ex.Message.ToString());
                         }
                     }
-                    
+
                 }
             }
             return Json(new { data = false, status = "Failed" }, JsonRequestBehavior.AllowGet);
@@ -410,27 +422,31 @@ namespace AlgoPayment.Controllers
                 if (id > 0)
                 {
 
+                        ClientViewModel obj = new ClientViewModel();
                     using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                     {
 
-                        var client = (from n in db.AlgoExpiries
-                                      from u in db.UserDetails
-                                      where n.CustomerID == u.Id && u.Id == id
-                                      select new ClientViewModel
-                                      {
-                                          CustomerID = n.CustomerID,
-                                          AppName = n.AppName,
-                                          DateExpiry = n.DateExpiry,
-                                          DeviceID = n.DeviceID,
-                                          CustomerName = u.Name,
-                                          MaxUser = n.MaxUser,
-                                          emailid = u.emailid,
-                                          City = u.City,
-                                          Password = u.Password,
-                                          State = u.State,
-                                          Mobile = u.Mobile
-                                      }).FirstOrDefault();
-                        categoryVM = client;
+                        var users = db.UserDetails.Where(x => x.Id == id).FirstOrDefault();
+                        var algo = db.AlgoExpiries.ToList();
+                        if (users != null)
+                        {
+                            var pay = algo.Where(x => x.CustomerID == users.Id).FirstOrDefault();
+                            obj.CustomerID = users.Id;
+                            obj.AppName = pay != null ? pay.AppName : "";
+                            obj.DateExpiry = pay != null ? pay.DateExpiry : "";
+                            obj.DeviceID = pay != null ? pay.DeviceID : "";
+                            obj.MaxUser = pay != null ? pay.MaxUser : "";
+
+                            obj.CustomerName = users.Name;
+                            obj.emailid = users.emailid;
+                            obj.City = users.City;
+                            obj.Password = users.Password;
+                            obj.State = users.State;
+
+                            obj.Mobile = users.Mobile;
+                        }
+
+                        categoryVM = obj;
                     }
                 }
 
@@ -446,37 +462,38 @@ namespace AlgoPayment.Controllers
         {
             try
             {
-                ResellerViewModel categoryVM = new ResellerViewModel();
-
+                    ResellerViewModel obj = new ResellerViewModel();
                 if (id > 0)
                 {
+
 
                     using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                     {
 
-                        var client = (from n in db.AlgoExpiries
-                                      from u in db.UserDetails
-                                      from r in db.AppSettings
-                                      where n.CustomerID == u.Id && r.ResellerId == u.Id && u.UserRole == "reseller"
-                                      select new ResellerViewModel
-                                      {
-                                          CustomerID = n.CustomerID,
-                                          AppName = n.AppName,
-                                          DateExpiry = n.DateExpiry,
-                                          DeviceID = n.DeviceID,
-                                          CustomerName = u.Name,
-                                          emailid = u.emailid,
-                                          City = u.City,
-                                          Password = u.Password,
-                                          State = u.State,
-                                          Mobile = u.Mobile,
-                                          ResellerAmount = r.Amount
-                                      }).FirstOrDefault();
-                        categoryVM = client;
+                        var users = db.UserDetails.Where(x => x.Id == id).FirstOrDefault();
+                        var algo = db.AlgoExpiries.ToList();
+                        var amount = db.AppSettings.FirstOrDefault(x => x.ResellerId == id).Amount;
+                        if (users != null)
+                        {
+                            var pay = algo.Where(x => x.CustomerID == users.Id).FirstOrDefault();
+                            obj.CustomerID = users.Id;
+                            obj.AppName = pay != null ? pay.AppName : "";
+                            obj.DateExpiry = pay != null ? pay.DateExpiry : "";
+                            obj.DeviceID = pay != null ? pay.DeviceID : "";
+                            obj.MaxUser = pay != null ? pay.MaxUser : "";
+
+                            obj.CustomerName = users.Name;
+                            obj.emailid = users.emailid;
+                            obj.City = users.City;
+                            obj.Password = users.Password;
+                            obj.State = users.State;
+                            obj.ResellerAmount = amount;
+                            obj.Mobile = users.Mobile;
+                        }
                     }
                 }
 
-                return View(categoryVM);
+                return View(obj);
             }
             catch (Exception ex)
             {
@@ -502,7 +519,7 @@ namespace AlgoPayment.Controllers
 
                     var clients = (from n in db.AlgoExpiries
                                    from u in db.UserDetails
-                                   where u.ResellerId == loggedInUser.Id && n.CustomerID == u.Id && u.UserRole == "resellerclient" 
+                                   where u.ResellerId == loggedInUser.Id && n.CustomerID == u.Id && u.UserRole == "resellerclient"
                                    select new ResellerViewModel
                                    {
                                        CustomerID = n.CustomerID,
@@ -517,8 +534,8 @@ namespace AlgoPayment.Controllers
                                        State = u.State,
                                        ResellerAmount = amountUser,
                                        Mobile = u.Mobile
-                                   }).DistinctBy(x=>x.CustomerID).ToList();
-                    
+                                   }).DistinctBy(x => x.CustomerID).ToList();
+
                     ViewBag.lstClients = clients;
                 }
             }
@@ -570,7 +587,7 @@ namespace AlgoPayment.Controllers
                                    State = u.State,
                                    Mobile = u.Mobile,
                                    CreatedDate = u.CreatedDate
-                               }).DistinctBy(x=>x.CustomerID).ToList();
+                               }).DistinctBy(x => x.CustomerID).ToList();
                 ViewBag.lstResClients = clients;
             }
 
@@ -581,6 +598,7 @@ namespace AlgoPayment.Controllers
         {
             try
             {
+                UserCredentials user1 = (UserCredentials)(Session["UserCredentials"]);
                 if (categoryVM != null)
                 {
                     if (!string.IsNullOrEmpty(categoryVM.emailid))
@@ -594,20 +612,35 @@ namespace AlgoPayment.Controllers
                             using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                             {
                                 var user = db.UserDetails.Find(categoryVM.CustomerID);
+                                if (user == null) { user = new UserDetail(); user.IsEmailVerified = true; user.ResellerId = user1.Id; user.CreatedDate = DateTime.Now; user.UserRole = "resellerclient"; }
                                 user.City = categoryVM.City;
                                 user.Password = categoryVM.Password;
                                 user.State = categoryVM.State;
                                 user.emailid = categoryVM.emailid;
                                 user.Mobile = categoryVM.Mobile;
                                 user.Name = categoryVM.CustomerName;
+                                if (user.Id == 0)
+                                {
+                                    db.UserDetails.Add(user);
+                                    db.SaveChanges();
+                                }
 
-                                var algo = db.AlgoExpiries.Where(x => x.CustomerID == categoryVM.CustomerID).FirstOrDefault();
+                                var userId = categoryVM.CustomerID == 0 ? user.Id : categoryVM.CustomerID;
+                                var algo = db.AlgoExpiries.Where(x => x.CustomerID == userId).FirstOrDefault();
+                                if (algo == null) { algo = new AlgoExpiry(); }
                                 if (algo != null)
                                 {
                                     algo.DateExpiry = Convert.ToDateTime(categoryVM.DateExpiry).ToString("dd/MM/yyyy");
                                     algo.DeviceID = categoryVM.DeviceID;
                                     algo.MaxUser = categoryVM.MaxUser;
+                                    algo.AppName = categoryVM.AppName;
+                                    algo.CustomerID = categoryVM.CustomerID;
                                 }
+                                if (algo.Id == 0)
+                                {
+                                    db.AlgoExpiries.Add(algo);
+                                }
+
                                 db.SaveChanges();
                             }
                         }

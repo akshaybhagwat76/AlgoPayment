@@ -13,18 +13,7 @@ namespace AlgoPayment.Helpers
         {
             try
             {
-                //var mail = new MailMessage
-                //{
-                //    From = new MailAddress(ConfigurationManager.AppSettings["FromEmail"]),
-                //    Subject = subject,
-                //    Body = data,
-                //    BodyEncoding = System.Text.Encoding.UTF8,
-                //    SubjectEncoding = System.Text.Encoding.Default,
-                //    IsBodyHtml = true
-                //};
-                //mail.To.Add(to);
-                //smtp.Send(mail);
-
+               
                 MailMessage mm = new MailMessage();
 
 

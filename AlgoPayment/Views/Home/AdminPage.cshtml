@@ -159,8 +159,7 @@
                     location.reload();
                 }
                 else {
-                    $('#deleteModal').modal('hide');
-                    funToastr(false, response.error);
+                    location.reload();
                 }
             },
             error: function (error) {
