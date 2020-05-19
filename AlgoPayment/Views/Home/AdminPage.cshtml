@@ -76,11 +76,10 @@
 
             @foreach (var person in (List<ClientViewModel>)ViewBag.lstClients)
             {
-                var n = DateTime.Parse(person.DateExpiry);
                 <tr>
                     <td>@person.CustomerName</td>
                     <td>@person.DeviceID</td>
-                    <td>@n.ToShortDateString()</td>
+                    <td>@person.DateExpiry</td>
                     <td>@person.emailid</td>
                     <td>@person.Mobile</td>
                     <td>@person.City</td>

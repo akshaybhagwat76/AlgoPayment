@@ -20,6 +20,15 @@ namespace AlgoPayment.Controllers
             return View();
         }
 
+        public ActionResult StorePayYouMoneyJson(string param)
+        {
+            HttpCookie cookie = new HttpCookie("payumoney");
+            cookie.Expires = DateTime.Now.AddMinutes(10);
+            cookie.Value = param;
+            Response.Cookies.Add(cookie);
+            return Json(true, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public ActionResult ResellerPayU(FormCollection form)
         {
@@ -57,12 +66,12 @@ namespace AlgoPayment.Controllers
                     else
                     {
                         order_id = Request.Form["txnid"];
-                        var o = Request.Form["udf1"];
-                        o = o.Replace("&quot;", "");
+                        var nameWithID = Request.Form["firstname"];
+                        var jsonUser = Request.Cookies["payumoney"].Value;
+                        
                         using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                         {
-                            var nameWithID = Request.Form["firstname"];
-                            var paymentList = JsonConvert.DeserializeObject<List<PaymentResponse>>(nameWithID.Split(',')[1]);
+                            var paymentList = JsonConvert.DeserializeObject<List<PaymentResponse>>(jsonUser);
                             foreach (var item in paymentList)
                             {
                                 var algo1 = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == item.id);
@@ -70,12 +79,14 @@ namespace AlgoPayment.Controllers
                                 if (algo1 != null)
                                 {
 
-                                    algo1.DateExpiry = Convert.ToDateTime(algo1.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("MM/dd/yyyy") : Convert.ToDateTime(algo1.DateExpiry).AddMonths(1).ToString("MM/dd/yyyy");
+                                    algo1.DateExpiry = Convert.ToDateTime(algo1.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy") : Convert.ToDateTime(algo1.DateExpiry).AddMonths(1).ToString("dd/MM/yyyy");
                                     db.SaveChanges();
 
                                 }
                             }
                         }
+                        ClearCookies();
+
                         return RedirectToAction("ResellerSuccess", "Home");
 
                         //Hash value did not matched
@@ -85,6 +96,9 @@ namespace AlgoPayment.Controllers
 
                 else
                 {
+                    ClearCookies();
+
+
                     return RedirectToAction("ResellerFail", "Home");
 
                 }
@@ -92,13 +106,26 @@ namespace AlgoPayment.Controllers
 
             catch (Exception ex)
             {
+                ClearCookies();
+
                 return RedirectToAction("ResellerFail", "Home");
             }
 
 
         }
 
+        public static void ClearCookies()
+        {
 
+            if (System.Web.HttpContext.Current.Request.Cookies["payumoney"] != null)
+            {
+                HttpCookie aCookie = System.Web.HttpContext.Current.Request.Cookies["payumoney"];
+                aCookie.Expires = DateTime.Now.AddDays(-10);
+                aCookie.Value = "";
+                System.Web.HttpContext.Current.Response.Cookies.Add(aCookie);
+            }
+
+        }
         [HttpGet]
         public ActionResult HandleResellerPayments(string param)
         {
@@ -114,7 +141,7 @@ namespace AlgoPayment.Controllers
                         if (algo != null)
                         {
 
-                            algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("MM/dd/yyyy") : Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToString("MM/dd/yyyy");
+                            algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy") : Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToString("dd/MM/yyyy");
                             db.SaveChanges();
 
                         }
@@ -170,7 +197,7 @@ namespace AlgoPayment.Controllers
                             var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == userId);
                             if (algo == null)
                             {
-                                algo = new AlgoExpiry() { CustomerID = userId, DeviceID = Request.Form["productinfo"], DateExpiry = DateTime.Now.AddDays(7).ToString("MM/dd/yyyy"), AppName = "Default", MaxUser = "1" };
+                                algo = new AlgoExpiry() { CustomerID = userId, DeviceID = Request.Form["productinfo"], DateExpiry = DateTime.Now.AddDays(7).ToString("dd/MM/yyyy"), AppName = "Default", MaxUser = "1" };
 
                                 db.AlgoExpiries.Add(algo);
                                 db.SaveChanges();
@@ -178,7 +205,7 @@ namespace AlgoPayment.Controllers
                             }
                             else
                             {
-                                algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("MM/dd/yyyy") : Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToString("MM/dd/yyyy");
+                                algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy") : Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToString("dd/MM/yyyy");
                                 db.SaveChanges();
 
                             }
@@ -216,7 +243,7 @@ namespace AlgoPayment.Controllers
                     var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == loggedInUser.Id);
                     if (algo == null)
                     {
-                        algo = new AlgoExpiry() { CustomerID = loggedInUser.Id, DeviceID = deviceId, DateExpiry = DateTime.Now.AddDays(7).ToString("MM/dd/yyyy"), AppName = "Default", MaxUser = "1" };
+                        algo = new AlgoExpiry() { CustomerID = loggedInUser.Id, DeviceID = deviceId, DateExpiry = DateTime.Now.AddDays(7).ToString("dd/MM/yyyy"), AppName = "Default", MaxUser = "1" };
 
                         db.AlgoExpiries.Add(algo);
                         db.SaveChanges();
@@ -225,7 +252,7 @@ namespace AlgoPayment.Controllers
                     }
                     else
                     {
-                        algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("MM/dd/yyyy") : Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToString("MM/dd/yyyy");
+                        algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy") : Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToString("dd/MM/yyyy");
                         db.SaveChanges();
                         return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
 

@@ -92,15 +92,15 @@
                     <td>@person.Password</td>
                     <td>@person.ResellerAmount</td>
                     <td width="20%">
-                        @*<a href="/Home/EditReseller/@person.CustomerID" data-id="@person.CustomerID" class="btn btn-primary">
+                        <a href="/Home/EditReseller/@person.CustomerID" data-id="@person.CustomerID" class="btn btn-primary">
             Edit
         </a>
         <a href="/Home/ViewClient/@person.CustomerID" data-id="@person.CustomerID" class="btn btn-warning">
             View Clients
-        </a>*@
-                        <a data-id="@person.CustomerID" class="btn btn-warning">
+        </a>
+                        @*<a data-id="@person.CustomerID" class="btn btn-warning">
                             Add to client
-                        </a>
+                        </a>*@
                     </td>
                 </tr>
             }

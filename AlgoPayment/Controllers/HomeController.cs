@@ -215,23 +215,45 @@ namespace AlgoPayment.Controllers
         {
             using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
             {
-                var clients = (from n in db.AlgoExpiries
-                               from u in db.UserDetails
-                               where n.CustomerID == u.Id && u.UserRole == "client"
-                               select new ClientViewModel
-                               {
-                                   CustomerID = n.CustomerID,
-                                   AppName = n.AppName,
-                                   DateExpiry = n.DateExpiry,
-                                   DeviceID = n.DeviceID,
-                                   CustomerName = u.Name,
-                                   emailid = u.emailid,
-                                   City = u.City,
-                                   Password = u.Password,
-                                   State = u.State,
-                                   Mobile = u.Mobile
-                               }).ToList();
-                ViewBag.lstClients = clients;
+                var user = db.UserDetails.Where(x=>x.UserRole.Contains("client")).ToList();
+                var algo = db.AlgoExpiries.ToList();
+                List<ClientViewModel> lst = new List<ClientViewModel>();
+
+                foreach (var item in user)
+                {
+                    ClientViewModel obj = new ClientViewModel();
+                    var pay = algo.Where(x => x.CustomerID == item.Id).FirstOrDefault();
+                    obj.CustomerID = item.Id;
+                    obj.AppName = pay != null ? pay.AppName : "N/A";
+                    obj.DateExpiry = pay != null ? Convert.ToDateTime(pay.DateExpiry).ToShortDateString() : "N/A";
+                    obj.DeviceID = pay != null ? pay.DeviceID: "N/A";
+                    obj.CustomerName = item.Name;
+                    obj.emailid = item.emailid;
+                    obj.City = item.City;
+                    obj.Password = item.Password;
+                    obj.State = item.State;
+                    obj.Mobile = item.Mobile;
+                    lst.Add(obj);
+                }
+
+                //var clients = (from n in db.AlgoExpiries
+                //               from u in db.UserDetails
+                //               where u.Id == n.CustomerID 
+                //               select new ClientViewModel
+                //               {
+                //                   CustomerID = n.CustomerID,
+                //                   AppName = n.AppName,
+                //                   DateExpiry = n.DateExpiry,
+                //                   DeviceID = n.DeviceID,
+                //                   CustomerName = u.Name,
+                //                   emailid = u.emailid,
+                //                   City = u.City,
+                //                   Password = u.Password,
+                //                   State = u.State,
+                //                   Mobile = u.Mobile
+                //               }).DistinctBy(x=>x.emailid).ToList();
+
+                ViewBag.lstClients = lst;
             }
 
             return View();
@@ -401,6 +423,7 @@ namespace AlgoPayment.Controllers
                                           DateExpiry = n.DateExpiry,
                                           DeviceID = n.DeviceID,
                                           CustomerName = u.Name,
+                                          MaxUser = n.MaxUser,
                                           emailid = u.emailid,
                                           City = u.City,
                                           Password = u.Password,
@@ -494,7 +517,7 @@ namespace AlgoPayment.Controllers
                                        State = u.State,
                                        ResellerAmount = amountUser,
                                        Mobile = u.Mobile
-                                   }).ToList();
+                                   }).DistinctBy(x=>x.CustomerID).ToList();
                     
                     ViewBag.lstClients = clients;
                 }
@@ -532,13 +555,14 @@ namespace AlgoPayment.Controllers
 
                 var clients = (from n in db.AlgoExpiries
                                from u in db.UserDetails
-                               where u.ResellerId == id && n.CustomerID == id && u.UserRole == "resellerclient"
+                               where u.ResellerId == id && n.CustomerID == u.Id && u.UserRole == "resellerclient"
                                select new ClientViewModel
                                {
-                                   CustomerID = n.CustomerID,
+                                   CustomerID = u.Id,
                                    AppName = n.AppName,
                                    DateExpiry = n.DateExpiry,
                                    DeviceID = n.DeviceID,
+                                   MaxUser = n.MaxUser,
                                    CustomerName = u.Name,
                                    emailid = u.emailid,
                                    City = u.City,
@@ -546,7 +570,7 @@ namespace AlgoPayment.Controllers
                                    State = u.State,
                                    Mobile = u.Mobile,
                                    CreatedDate = u.CreatedDate
-                               }).ToList();
+                               }).DistinctBy(x=>x.CustomerID).ToList();
                 ViewBag.lstResClients = clients;
             }
 
@@ -580,7 +604,7 @@ namespace AlgoPayment.Controllers
                                 var algo = db.AlgoExpiries.Where(x => x.CustomerID == categoryVM.CustomerID).FirstOrDefault();
                                 if (algo != null)
                                 {
-                                    algo.DateExpiry = Convert.ToDateTime(categoryVM.DateExpiry).ToString("MM/dd/yyyy");
+                                    algo.DateExpiry = Convert.ToDateTime(categoryVM.DateExpiry).ToString("dd/MM/yyyy");
                                     algo.DeviceID = categoryVM.DeviceID;
                                     algo.MaxUser = categoryVM.MaxUser;
                                 }
@@ -626,7 +650,7 @@ namespace AlgoPayment.Controllers
                                 var algo = db.AlgoExpiries.Where(x => x.CustomerID == categoryVM.CustomerID).FirstOrDefault();
                                 if (algo != null)
                                 {
-                                    algo.DateExpiry = Convert.ToDateTime(categoryVM.DateExpiry).ToString("MM/dd/yyyy");
+                                    algo.DateExpiry = Convert.ToDateTime(categoryVM.DateExpiry).ToString("dd/MM/yyyy");
                                     algo.DeviceID = categoryVM.DeviceID;
                                 }
                                 var setting = db.AppSettings.Where(x => x.ResellerId == categoryVM.CustomerID).FirstOrDefault();

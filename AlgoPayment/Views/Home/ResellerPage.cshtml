@@ -10,6 +10,8 @@
         Response.Redirect("~/Home/Index");
         return;
     }
+    var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
+    var userInfoJson = jss.Serialize(ViewBag.lstClients);
 }
 <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
 
@@ -86,7 +88,6 @@
 
             @foreach (var person in (List<ResellerViewModel>)ViewBag.lstClients)
             {
-                var n = DateTime.Parse(person.DateExpiry);
                 var m = !string.IsNullOrEmpty(person.MaxUser) ? (Convert.ToInt32(person.MaxUser) * person.ResellerAmount) : 0;
 
                 <tr>
@@ -95,7 +96,7 @@
                     </td>
                     <td>@person.CustomerName</td>
                     <td style="width: 16.66%">@person.DeviceID</td>
-                    <td>@n.ToShortDateString()</td>
+                    <td>@person.DateExpiry</td>
                     <td>@person.emailid</td>
                     <td>@person.Mobile</td>
                     <td>@person.City</td>
@@ -146,26 +147,6 @@
 <script>
     var values = null; var totalAmount = 0; var oTable = null;
 
-    function setCookie(c_name, value, exdays) {
-        var exdate = new Date();
-        exdate.setDate(exdate.getDate() + exdays);
-        var c_value = escape(value) + ((exdays == null) ? "" : "; expires=" + exdate.toUTCString());
-        document.cookie = c_name + "=" + c_value;
-    }
-
-    function getCookie(c_name) {
-        var i, x, y, ARRcookies = document.cookie.split(";");
-        for (i = 0; i < ARRcookies.length; i++) {
-            x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
-            y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
-            x = x.replace(/^\s+|\s+$/g, "");
-            if (x == c_name) {
-                return unescape(y);
-            }
-        }
-    }
-
-
     $("#addtoCart").on("click", function () {
         values = []; totalAmount = 0;
 
@@ -191,7 +172,7 @@
                     "amount": totalAmount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                     "currency": "INR",
                     "name": '@user.Name',
-                    "description":'@user.Name users',
+                    "description": '@user.Name users',
                     "handler": function (response) {
                         $.get('/Return/HandleResellerPayments?param=' + JSON.stringify(values), function (data) {
                             if (data != null) {
@@ -205,97 +186,77 @@
                         });
                     },
                     "prefill": {
-                        "name":'@user.Name',
+                        "name": '@user.Name',
                         "email": '@user.emailid',
-                        "contact":'@user.Mobile'
+                        "contact": '@user.Mobile'
                     },
                     "theme": {
                         "color": "#F37254"
                     }
                 };
                 var rzp1 = new Razorpay(options);
-                    rzp1.open();
-                    e.preventDefault();
+                rzp1.open();
+                e.preventDefault();
             }
             else {
-                    var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
+                var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
                 var uid = getRandomInt();
                 var totalPrice = totalAmount;
-                    var productInfo = '@user.Name users payment';
-                    var recipient_name = '@user.Name';
-                    var email = '@user.emailid';
-                    var merchantSalt = '@System.Configuration.ConfigurationManager.AppSettings["SALT"]';
-                var hashString = merchantKey + '|' + uid + '|' + totalPrice + '|' + productInfo + '|' + recipient_name + '|' + email + '|'+ JSON.stringify(values)+'||||||||||' + merchantSalt;
-                    var shaObj = new jsSHA("SHA-512", "TEXT");
-                    shaObj.update(hashString);
-                    var hash = shaObj.getHash("HEX");
+                var productInfo = '@user.Name users payment';
+                var recipient_name = '@user.Name';
+                var email = '@user.emailid';
 
-                    var key1 = $('<input></input>').attr('type', 'hidden').attr('name', "key").val(merchantKey);
-                    var key2 = $('<input></input>').attr('type', 'hidden').attr('name', "txnid").val(uid);
+                var merchantSalt = '@System.Configuration.ConfigurationManager.AppSettings["SALT"]';
+                var hashString = merchantKey + '|' + uid + '|' + totalPrice + '|' + productInfo + '|' + recipient_name + '|' + email + '|||||||||||' + merchantSalt;
+                var shaObj = new jsSHA("SHA-512", "TEXT");
+                shaObj.update(hashString);
+                var hash = shaObj.getHash("HEX");
 
-                    var key3 = $('<input></input>').attr('type', 'hidden').attr('name', "amount").val(totalPrice);
+                var key1 = $('<input></input>').attr('type', 'hidden').attr('name', "key").val(merchantKey);
+                var key2 = $('<input></input>').attr('type', 'hidden').attr('name', "txnid").val(uid);
 
-                    var key4 = $('<input></input>').attr('type', 'hidden').attr('name', "productinfo").val(productInfo);
+                var key3 = $('<input></input>').attr('type', 'hidden').attr('name', "amount").val(totalPrice);
 
-                    var key5 = $('<input></input>').attr('type', 'hidden').attr('name', "firstname").val(recipient_name);
+                var key4 = $('<input></input>').attr('type', 'hidden').attr('name', "productinfo").val(productInfo);
 
-                    var key6 = $('<input></input>').attr('type', 'hidden').attr('name', "email").val(email);
+                var key5 = $('<input></input>').attr('type', 'hidden').attr('name', "firstname").val(recipient_name);
+
+                var key6 = $('<input></input>').attr('type', 'hidden').attr('name', "email").val(email);
 
                 var key7 = $('<input></input>').attr('type', 'hidden').attr('name', "phone").val('@user.Mobile');
-                var key12 = $('<input></input>').attr('type', 'hidden').attr('name', "udf1").val(JSON.stringify(values));
-                debugger
-                setCookie('usersPayment', JSON.stringify(values), 1);
 
                 var key8 = $('<input></input>').attr('type', 'hidden').attr('name', "surl").val(window.location.origin + '/Return/ResellerPayU');
 
                 var key9 = $('<input></input>').attr('type', 'hidden').attr('name', "furl").val(window.location.origin + '/Home/ResellerFail');
 
-                    var key10 = $('<input></input>').attr('type', 'hidden').attr('name', "hash").val(hash);
+                var key10 = $('<input></input>').attr('type', 'hidden').attr('name', "hash").val(hash);
 
-                    var key11 = $('<input></input>').attr('type', 'hidden').attr('name', "service_provider").val();
+                var key11 = $('<input></input>').attr('type', 'hidden').attr('name', "service_provider").val();
 
 
-                    var form = $('<form/></form>');
+                var form = $('<form/></form>');
 
-                    form.attr("id", "payuform");
+                form.attr("id", "payuform");
 
-                    form.attr("action", '@System.Configuration.ConfigurationManager.AppSettings["PAYU_BASE_URL"]');
+                form.attr("action", '@System.Configuration.ConfigurationManager.AppSettings["PAYU_BASE_URL"]');
 
-                    form.attr("method", "POST");
+                form.attr("method", "POST");
 
-                    form.attr("style", "display:none;");
+                form.attr("style", "display:none;");
 
-                    form.append(key1, key2, key3, key4, key5, key6, key7, key8, key9, key10, key11,key12);
+                form.append(key1, key2, key3, key4, key5, key6, key7, key8, key9, key10, key11);
 
-                    $("body").append(form);
-                    form.submit();
+                $("body").append(form);
+                $.get('/Return/StorePayYouMoneyJson?param=' + JSON.stringify(values), function (data) {
+                    if (data) {
+                        form.submit();
+                    }
+                });
+
             }
         }
     })
-     var loadScript = function (path) {
-                var result = $.Deferred(),
-                    script = document.createElement("script");
 
-                script.async = "async";
-                script.type = "text/javascript";
-                script.src = path;
-                script.onload = script.onreadystatechange = function (_, isAbort) {
-                    if (!script.readyState || /loaded|complete/.test(script.readyState)) {
-                        if (isAbort)
-                            result.reject();
-                        else
-                            result.resolve();
-                    }
-                };
-
-                script.onerror = function () {
-                    result.reject();
-                };
-
-                $("head")[0].appendChild(script);
-
-                return result.promise();
-            }
 
        function getRandomInt() {
                   return Math.floor(100000 + Math.random() * 900000);
@@ -330,9 +291,100 @@
     });
 
     $("#myTable").on("click", "a.btn-warning", function () {
+         //use Json.parse to convert string to Json
+        var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
+
+                var key = '@System.Configuration.ConfigurationManager.AppSettings["PaymentOption"].ToString()';
         var id = $(this).data('id');
-        $('#deleteModal').data('id', id).modal('show');
-        $('#deleteModal').modal('show');
+        var user = userInfo.filter((x) => { return x.CustomerID == id; })
+
+
+         if (key === "PayUMoney") {
+
+
+                    var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
+                    var uid = getRandomInt();
+             var totalPrice = user[0].ResellerAmount * user[0].MaxUser;
+             var productInfo = user[0].DeviceID;
+             var recipient_name = user[0].CustomerName + ',' + user[0].CustomerID;
+             var email = user[0].emailid;
+                    var merchantSalt = '@System.Configuration.ConfigurationManager.AppSettings["SALT"]';
+                    var hashString = merchantKey + '|' + uid + '|' + totalPrice + '|' + productInfo + '|' + recipient_name + '|' + email + '|||||||||||' + merchantSalt;
+                    var shaObj = new jsSHA("SHA-512", "TEXT");
+                    shaObj.update(hashString);
+                    var hash = shaObj.getHash("HEX");
+
+                    var key1 = $('<input></input>').attr('type', 'hidden').attr('name', "key").val(merchantKey);
+                    var key2 = $('<input></input>').attr('type', 'hidden').attr('name', "txnid").val(uid);
+
+                    var key3 = $('<input></input>').attr('type', 'hidden').attr('name', "amount").val(totalPrice);
+
+                    var key4 = $('<input></input>').attr('type', 'hidden').attr('name', "productinfo").val(productInfo);
+
+                    var key5 = $('<input></input>').attr('type', 'hidden').attr('name', "firstname").val(recipient_name);
+
+                    var key6 = $('<input></input>').attr('type', 'hidden').attr('name', "email").val(email);
+
+                    var key7 = $('<input></input>').attr('type', 'hidden').attr('name', "phone").val(user.Mobile);
+
+                    var key8 = $('<input></input>').attr('type', 'hidden').attr('name', "surl").val(window.location.origin + '/Return/Return');
+
+
+             var key9 = $('<input></input>').attr('type', 'hidden').attr('name', "furl").val(window.location.origin + '/Home/ResellerFail');
+
+
+                    var key10 = $('<input></input>').attr('type', 'hidden').attr('name', "hash").val(hash);
+
+                    var key11 = $('<input></input>').attr('type', 'hidden').attr('name', "service_provider").val();
+
+
+                    var form = $('<form/></form>');
+
+                    form.attr("id", "payuform");
+
+                    form.attr("action", '@System.Configuration.ConfigurationManager.AppSettings["PAYU_BASE_URL"]');
+
+                    form.attr("method", "POST");
+
+                    form.attr("style", "display:none;");
+
+                    form.append(key1, key2, key3, key4, key5, key6, key7, key8, key9, key10, key11);
+
+                    $("body").append(form);
+                    form.submit();
+                }
+                else {
+                    loadScript('https://checkout.razorpay.com/v1/checkout.js').then(function () {
+                window.r = new Razorpay({
+                    key: 'rzp_test_4eINMyNiQesjcj',
+                    protocol: 'https',
+                    hostname: 'api.razorpay.com',
+                    amount: user[0].ResellerAmount * user[0].MaxUser,
+                    name: user[0].CustomerName,
+                    description: user[0].DeviceID,
+                    prefill: {
+                        name: user[0].CustomerName,
+                        email: user[0].emailid,
+                        contact: user[0].Mobile
+                    },
+                    handler: function (transaction) {
+                        $.get('/Return/HandleRazorPay?deviceId=' + user[0].DeviceID, function (data) {
+                            if (data != null) {
+                                if (data.status == "Failed") {
+                                    location.href = '/Home/ResellerFail';
+                                }
+                                else {
+                                    location.href = '/Home/ResellerSuccess';
+                                }
+                            }
+                        });
+                    }
+                });
+
+            });
+                }
+
+
     });
 
     $('#delete-btn').click(function () {
