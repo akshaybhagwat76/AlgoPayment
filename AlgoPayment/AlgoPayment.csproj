@@ -278,9 +278,11 @@
     <Content Include="Views\Home\EditResellerClient.cshtml" />
     <Content Include="Views\Home\ResellerFail.cshtml" />
     <Content Include="Views\Home\ResellerSuccess.cshtml" />
+    <Content Include="Views\Home\AddClientFromAdmin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Logs\" />
     <Folder Include="Views\Account\" />
     <Folder Include="Views\Base\" />
   </ItemGroup>

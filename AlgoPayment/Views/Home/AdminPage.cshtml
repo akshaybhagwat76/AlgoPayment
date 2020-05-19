@@ -39,6 +39,8 @@
 
 <!-- widgets -->
 <div class="container">
+    <a class="btn btn-info" href="/Home/AddClientFromAdmin" id="addtoCart">Add Client</a>
+
     <table class="table table-striped table-bordered table-hover" id="myTable">
         <thead>
             <tr>
@@ -51,18 +53,18 @@
                 <th>
                     Expiry Date
                 </th>
-                <th>
-                    Email
-                </th>
-                <th>
-                    Phone
-                </th>
-                <th>
-                    City
-                </th>
-                <th>
-                    State
-                </th>
+                @*<th>
+                        Email
+                    </th>
+                    <th>
+                        Phone
+                    </th>
+                    <th>
+                        City
+                    </th>
+                    <th>
+                        State
+                    </th>*@
                 <th>
                     Password
                 </th>
@@ -80,18 +82,19 @@
                     <td>@person.CustomerName</td>
                     <td>@person.DeviceID</td>
                     <td>@person.DateExpiry</td>
-                    <td>@person.emailid</td>
-                    <td>@person.Mobile</td>
-                    <td>@person.City</td>
-                    <td>@person.State</td>
+                    @*<td>@person.emailid</td>
+                        <td>@person.Mobile</td>
+                        <td>@person.City</td>
+                        <td>@person.State</td>*@
                     <td>@person.Password</td>
                     <td width="20%">
                         <a href="/Home/EditClient/@person.CustomerID" data-id="@person.CustomerID" class="btn btn-primary">
                             Edit
                         </a>
-                        <a data-id="@person.CustomerID" class="btn btn-warning">
-                            Make Reseller
-                        </a>
+                        <input type="checkbox" name="language" onclick="makereseller(this)" data-id="@person.CustomerID" class="btn btn-warning" />
+                        @*<a data-id="@person.CustomerID" class="btn btn-warning">
+                                Make Reseller
+                            </a>*@
                     </td>
                 </tr>
             }
@@ -128,6 +131,11 @@
     $(function () {
         $("#myTable").dataTable();
     })
+    function makereseller($this) {
+        var id = $($this).data('id');
+        $('#deleteModal').data('id', id).modal('show');
+        $('#deleteModal').modal('show');
+    }
     $("#btnLogout").click(function () {
         $.get('/Home/Logout', function (data) {
             if (data == "Cleared") {
@@ -135,11 +143,15 @@
             }
         });
     });
+ 
+    $('#deleteModal').on('hidden.bs.modal', function () {
+        $('input[name="language"]').each(function () {
+            this.checked = false;
+        });
+    });
 
-    $("#myTable").on("click", "a.btn-warning", function () {
-        var id = $(this).data('id');
-        $('#deleteModal').data('id', id).modal('show');
-        $('#deleteModal').modal('show');
+    $("#deleteModal").on("click", "a.btn-warning", function () {
+       
     });
 
     $('#delete-btn').click(function () {

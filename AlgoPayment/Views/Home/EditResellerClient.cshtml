@@ -186,7 +186,7 @@
             if (retval) {
                 var formData = $("#myForm").serializeObject();
                 if (formData.CustomerID == "0") {
-                    formData.DateExpiry = new Date(new Date().setDate(new Date().getDate() + 7)).toLocaleString()
+                    formData.DateExpiry = convertDate(new Date(new Date().setDate(new Date().getDate() + 7)))
                 }
                 $.ajax({
                     type: "POST",
@@ -208,6 +208,12 @@
             }
         })
     })
+    function convertDate(inputFormat) {
+        function pad(s) { return (s < 10) ? '0' + s : s; }
+        var d = new Date(inputFormat)
+        return [pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear()].join('/')
+    }
+
     $.fn.serializeObject = function () {
         var o = {};
         var a = this.serializeArray();

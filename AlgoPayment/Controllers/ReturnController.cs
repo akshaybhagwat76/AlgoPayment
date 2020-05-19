@@ -9,6 +9,9 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Collections;
+using System.IO;
+using System.Globalization;
+
 namespace AlgoPayment.Controllers
 {
     public class ReturnController : BaseController
@@ -78,8 +81,9 @@ namespace AlgoPayment.Controllers
 
                                 if (algo1 != null)
                                 {
+                                    DateTime date = DateTime.ParseExact(algo1.DateExpiry.Replace("-", "/"), "dd/MM/yyyy", CultureInfo.InvariantCulture);
 
-                                    algo1.DateExpiry = Convert.ToDateTime(algo1.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy") : Convert.ToDateTime(algo1.DateExpiry).AddMonths(1).ToString("dd/MM/yyyy");
+                                    algo1.DateExpiry = date < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd-MM-yyyy") : date.AddMonths(1).ToString("dd-MM-yyyy");
                                     db.SaveChanges();
 
                                 }
@@ -126,28 +130,79 @@ namespace AlgoPayment.Controllers
             }
 
         }
-        [HttpGet]
+
+        public void WriteErrorLog(string ex)
+        {
+            string webPageName = Path.GetFileName(Request.Path);
+            string errorLogFilename = "ErrorLog_" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
+            string path = Server.MapPath("~/Logs/" + errorLogFilename);
+            if (!System.IO.File.Exists(path))
+            {
+                StreamWriter stwriter = System.IO.File.CreateText(path);
+                stwriter.WriteLine("-------------------Error Log Start-----------as on " + DateTime.Now.ToString("hh:mm tt"));
+                stwriter.WriteLine("WebPage Name :" + webPageName);
+                stwriter.WriteLine("Message: " + ex.ToString());
+                stwriter.WriteLine("-------------------End----------------------------");
+                stwriter.Close();
+            }
+            else
+            {
+                using (StreamWriter stwriter = new StreamWriter(path, true))
+                {
+                    stwriter.WriteLine("-------------------Error Log Start-----------as on " + DateTime.Now.ToString("hh:mm tt"));
+                    stwriter.WriteLine("WebPage Name :" + webPageName);
+                    stwriter.WriteLine("Message:" + ex.ToString());
+                    stwriter.WriteLine("-------------------End----------------------------");
+                }
+            }
+        }
+
+
+        [HttpPost]
         public ActionResult HandleResellerPayments(string param)
         {
-            if (!string.IsNullOrEmpty(param))
+            try
             {
-                var paymentList = JsonConvert.DeserializeObject<List<PaymentResponse>>(param);
-                using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+                this.WriteErrorLog("aaya");
+                if (!string.IsNullOrEmpty(param))
                 {
-                    foreach (var item in paymentList)
+                    this.WriteErrorLog("ifaaya");
+
+                    var paymentList = JsonConvert.DeserializeObject<List<PaymentResponse>>(param);
+                    this.WriteErrorLog("deserlized");
+
+                    using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                     {
-                        var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == item.id);
-
-                        if (algo != null)
+                        foreach (var item in paymentList)
                         {
+                            this.WriteErrorLog("foreach");
 
-                            algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy") : Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToString("dd/MM/yyyy");
+                            var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == item.id);
+
+                            if (algo != null)
+                            {
+                                DateTime date = DateTime.ParseExact(algo.DateExpiry.Replace("-","/"), "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                                algo.DateExpiry = date < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd-MM-yyyy") : date.AddMonths(1).ToString("dd-MM-yyyy");
+                            }
+                            else
+                            {
+                                algo = new AlgoExpiry();
+                                algo.DateExpiry = DateTime.Now.AddMonths(1).ToString("dd-MM-yyyy");
+                                algo.CustomerID = item.id;
+                                algo.AppName = "Default";
+                                algo.MaxUser = "1";
+                                db.AlgoExpiries.Add(algo);
+                            }
                             db.SaveChanges();
-
                         }
+                        return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
                     }
-                    return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
                 }
+            }
+            catch (Exception ex)
+            {
+                this.WriteErrorLog(ex.Message.ToString());
+            return Json(new { data = true, status = "Failed" }, JsonRequestBehavior.AllowGet);
             }
             return Json(new { data = true, status = "Failed" }, JsonRequestBehavior.AllowGet);
 
@@ -197,7 +252,7 @@ namespace AlgoPayment.Controllers
                             var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == userId);
                             if (algo == null)
                             {
-                                algo = new AlgoExpiry() { CustomerID = userId, DeviceID = Request.Form["productinfo"], DateExpiry = DateTime.Now.AddDays(7).ToString("dd/MM/yyyy"), AppName = "Default", MaxUser = "1" };
+                                algo = new AlgoExpiry() { CustomerID = userId, DeviceID = Request.Form["productinfo"], DateExpiry = DateTime.Now.AddDays(7).ToString("dd-MM-yyyy"), AppName = "Default", MaxUser = "1" };
 
                                 db.AlgoExpiries.Add(algo);
                                 db.SaveChanges();
@@ -205,7 +260,9 @@ namespace AlgoPayment.Controllers
                             }
                             else
                             {
-                                algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy") : Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToString("dd/MM/yyyy");
+                                DateTime date = DateTime.ParseExact(algo.DateExpiry.Replace("-", "/"), "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+                                algo.DateExpiry = date < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd-MM-yyyy") : date.AddMonths(1).ToString("dd-MM-yyyy");
                                 db.SaveChanges();
 
                             }
@@ -243,7 +300,7 @@ namespace AlgoPayment.Controllers
                     var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == loggedInUser.Id);
                     if (algo == null)
                     {
-                        algo = new AlgoExpiry() { CustomerID = loggedInUser.Id, DeviceID = deviceId, DateExpiry = DateTime.Now.AddDays(7).ToString("dd/MM/yyyy"), AppName = "Default", MaxUser = "1" };
+                        algo = new AlgoExpiry() { CustomerID = loggedInUser.Id, DeviceID = deviceId, DateExpiry = DateTime.Now.AddDays(7).ToString("dd-MM-yyyy"), AppName = "Default", MaxUser = "1" };
 
                         db.AlgoExpiries.Add(algo);
                         db.SaveChanges();
@@ -252,7 +309,9 @@ namespace AlgoPayment.Controllers
                     }
                     else
                     {
-                        algo.DateExpiry = Convert.ToDateTime(algo.DateExpiry) < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd/MM/yyyy") : Convert.ToDateTime(algo.DateExpiry).AddMonths(1).ToString("dd/MM/yyyy");
+                        DateTime date = DateTime.ParseExact(algo.DateExpiry.Replace("-", "/"), "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+                        algo.DateExpiry = date < DateTime.Now ? DateTime.Now.AddMonths(1).ToString("dd-MM-yyyy") : date.AddMonths(1).ToString("dd-MM-yyyy");
                         db.SaveChanges();
                         return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
 

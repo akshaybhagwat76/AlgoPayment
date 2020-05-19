@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -260,7 +261,7 @@ namespace AlgoPayment.Controllers
                     ResellerViewModel obj = new ResellerViewModel();
                     obj.CustomerID = item.Id;
                     obj.AppName = auser != null ? auser.AppName : "N/A";
-
+                    obj.emailid = item.emailid;
                     obj.DateExpiry = auser != null ? auser.DateExpiry : "N/A";
                     obj.DeviceID = auser != null ? auser.DeviceID : "N/A";
                     obj.CustomerName = item.Name;
@@ -272,7 +273,7 @@ namespace AlgoPayment.Controllers
 
                     //if (lst.Any(x => x.CustomerID != obj.CustomerID))
                     //{
-                        lst.Add(obj);
+                    lst.Add(obj);
 
                     //}
                 }
@@ -368,6 +369,13 @@ namespace AlgoPayment.Controllers
             return View();
         }
 
+        public ActionResult AddClientFromAdmin()
+        {
+            ClientViewModel categoryVM = new ClientViewModel();
+
+            return View(categoryVM);
+        }
+
         [HttpPost]
         public ActionResult MarkAsReseller(string param)
         {
@@ -422,7 +430,7 @@ namespace AlgoPayment.Controllers
                 if (id > 0)
                 {
 
-                        ClientViewModel obj = new ClientViewModel();
+                    ClientViewModel obj = new ClientViewModel();
                     using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
                     {
 
@@ -462,7 +470,7 @@ namespace AlgoPayment.Controllers
         {
             try
             {
-                    ResellerViewModel obj = new ResellerViewModel();
+                ResellerViewModel obj = new ResellerViewModel();
                 if (id > 0)
                 {
 
@@ -630,11 +638,28 @@ namespace AlgoPayment.Controllers
                                 if (algo == null) { algo = new AlgoExpiry(); }
                                 if (algo != null)
                                 {
-                                    algo.DateExpiry = Convert.ToDateTime(categoryVM.DateExpiry).ToString("dd/MM/yyyy");
+
+                                    if (categoryVM.DateExpiry.Contains("-"))
+                                    {
+                                        categoryVM.DateExpiry.Replace("-", "/");
+                                    }
+
+                                    DateTime date = DateTime.ParseExact(categoryVM.DateExpiry, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                                    DateTime? oldDate = null;
+                                    if (!string.IsNullOrEmpty(algo.DateExpiry))
+                                    {
+                                        oldDate = DateTime.ParseExact(algo.DateExpiry, "dd-mm-yyyy", CultureInfo.InvariantCulture).Date;
+                                        if (user1.UserRole == "reseller" && date.Date > oldDate.Value.Date)
+                                        {
+                                            date = DateTime.ParseExact(algo.DateExpiry, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+                                        }
+                                    }
+                                  
+                                    algo.DateExpiry = date.ToString("dd-MM-yyyy");
                                     algo.DeviceID = categoryVM.DeviceID;
                                     algo.MaxUser = categoryVM.MaxUser;
                                     algo.AppName = categoryVM.AppName;
-                                    algo.CustomerID = categoryVM.CustomerID;
+                                    algo.CustomerID = userId;
                                 }
                                 if (algo.Id == 0)
                                 {
@@ -683,7 +708,9 @@ namespace AlgoPayment.Controllers
                                 var algo = db.AlgoExpiries.Where(x => x.CustomerID == categoryVM.CustomerID).FirstOrDefault();
                                 if (algo != null)
                                 {
-                                    algo.DateExpiry = Convert.ToDateTime(categoryVM.DateExpiry).ToString("dd/MM/yyyy");
+                                    DateTime date = DateTime.ParseExact(categoryVM.DateExpiry.Replace("-", "/"), "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+                                    algo.DateExpiry = date.ToString("dd-MM-yyyy");
                                     algo.DeviceID = categoryVM.DeviceID;
                                 }
                                 var setting = db.AppSettings.Where(x => x.ResellerId == categoryVM.CustomerID).FirstOrDefault();
