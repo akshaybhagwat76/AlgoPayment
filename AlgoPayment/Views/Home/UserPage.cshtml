@@ -368,7 +368,7 @@
             var user;
             var loggedIn = false;
             var fullaccess_token;
-            var window = null;
+            var window = null; var amount1 = 750 * 100;
         </script>
         <script>
             var loadScript = function (path) {
@@ -402,9 +402,9 @@
                     key: 'rzp_test_4eINMyNiQesjcj',
                     protocol: 'https',
                     hostname: 'api.razorpay.com',
-                    amount: '750',
+                    amount: amount1,
                     name: '@user.Name',
-                    description: $("#txtDeviceID").val(),
+                    description: deviceId,
                     prefill: {
                         name: '@user.Name',
                         email:  '@user.emailid',
@@ -439,9 +439,6 @@
              }
 
             $("#btnPay").click(function () {
-
-
-
                 if ($("#txtDeviceID").val() == null || $("#txtDeviceID").val() == '') {
                     toastr.error('Device id required');
                     return;
@@ -449,7 +446,6 @@
 
                 var key = '@System.Configuration.ConfigurationManager.AppSettings["PaymentOption"].ToString()';
                 if (key === "PayUMoney") {
-
                     var user = JSON.parse($("#userInfo").val());
 
                     var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
@@ -522,9 +518,7 @@
                         $('.events').append("<li>after event fired.</li>");
                     }
                 });
-
             });
-
         </script>
         <!-- //responsiveslider -->
         <!-- stats -->

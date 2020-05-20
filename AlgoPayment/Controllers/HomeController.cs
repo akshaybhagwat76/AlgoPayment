@@ -9,16 +9,20 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
+using Xero.Api.Example.Applications.Public;
+using Xero.Api.Infrastructure.OAuth;
 
 namespace AlgoPayment.Controllers
 {
     public class HomeController : BaseController
     {
+
         public ActionResult Index()
         {
 
@@ -654,7 +658,7 @@ namespace AlgoPayment.Controllers
                                             date = DateTime.ParseExact(algo.DateExpiry, "dd-MM-yyyy", CultureInfo.InvariantCulture);
                                         }
                                     }
-                                  
+
                                     algo.DateExpiry = date.ToString("dd-MM-yyyy");
                                     algo.DeviceID = categoryVM.DeviceID;
                                     algo.MaxUser = categoryVM.MaxUser;

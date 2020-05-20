@@ -3,7 +3,7 @@
 @{
     ViewBag.Title = "Admin Resellers";
     Layout = null;
-
+    var list = (List<ResellerViewModel>)ViewBag.lstResellers;
     UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
     if (user == null)
     {
@@ -67,7 +67,7 @@
                     Password
                 </th>
                 <th>
-                    Per user cost
+                    Per user cost 
                 </th>
                 <th>
                     Actions
@@ -77,12 +77,12 @@
 
         <tbody>
 
-            @foreach (var person in (List<ResellerViewModel>)ViewBag.lstResellers)
+            @foreach (var person in list)
             {
                 var amount = !string.IsNullOrEmpty(person.MaxUser) ? (person.ResellerAmount * Convert.ToInt32(person.MaxUser)) : 0;
                 <tr>
                     <td>@person.CustomerName</td>
-                    <td>@person.DeviceID</td>
+                    <td style="width: 16.66%">@person.DeviceID</td>
                     <td>@person.DateExpiry</td>
                     <td>@person.emailid</td>
                     <td>@person.Mobile</td>

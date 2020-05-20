@@ -48,6 +48,8 @@
                 <form id="myForm" class="m-t" role="form" action="javascript:;">
                     <div class="form-horizontal">
                         @Html.HiddenFor(model => model.CustomerID)
+                        @Html.HiddenFor(model => model.MaxUser)
+
                         <div class="form-group">
                             @Html.Label("Customer Name", new { @class = "control-label col-md-2 requiredLabel" })
                             <div class="col-md-5">
@@ -99,12 +101,12 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            @Html.Label("Max user", new { @class = "control-label col-md-2" })
-                            <div class="col-md-2">
-                                <input type="number" class="form-control required" value="@Model.MaxUser" name="MaxUser" min="1" max="9999999" id="txtMaxUser" />
-                            </div>
-                        </div>
+                        @*<div class="form-group">
+            @Html.Label("Max user", new { @class = "control-label col-md-2" })
+            <div class="col-md-2">
+                <input type="number" class="form-control required" value="@Model.MaxUser" name="MaxUser" min="1" max="9999999" id="txtMaxUser" />
+            </div>
+        </div>*@
 
                         @if (Model.CustomerID > 0)
                         {

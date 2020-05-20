@@ -27,7 +27,6 @@ namespace AlgoPayment.Helpers
 
         }
 
-
         public string Generatetxnid()
         {
 

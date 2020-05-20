@@ -19,6 +19,10 @@ namespace AlgoPayment.VideModel
         public int id { get; set; }
         [JsonProperty("amt")]
         public string amt { get; set; }
-    
+        [JsonProperty("deviceid")]
+        public string deviceid { get; set; }
+        [JsonProperty("maxuser")]
+        public string maxuser { get; set; }
+
     }
 }

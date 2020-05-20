@@ -10,6 +10,8 @@
         Response.Redirect("~/Home/Index");
         return;
     }
+    var list = (List<ResellerViewModel>)ViewBag.lstClients;
+    var amount1 = list.Count > 0 ? list[0].ResellerAmount : 0;
     var jss = new System.Web.Script.Serialization.JavaScriptSerializer();
     var userInfoJson = jss.Serialize(ViewBag.lstClients);
 }
@@ -39,16 +41,15 @@
 
 <!-- widgets -->
 <div class="container">
-    <button class="btn btn-success" id="addtoCart">Add to card selected</button>
-    <a class="btn btn-info" href="/Home/AddClientFromAdmin" id="addtoCart">Add Client</a>
-
+    <button class="btn btn-success" id="addtoCart">Add selected to cart</button>
+    <a class="btn btn-info" href="/Home/EditResellerClient/0" id="addtoCart">Add Client</a>
+    <br /><br />
     <table class="table table-striped table-bordered table-hover" id="myTable" style="
     /*margin-left: -255px;*/
 ">
         <thead>
             <tr>
-                <th>Selection<input type="checkbox" name="allChecked" value="1" id="chk-all"></th>
-
+                <th>Selection</th>
                 <th>
                     Customer Name
                 </th>
@@ -74,7 +75,7 @@
                     Max Users
                 </th>
                 <th>
-                    Per user cost
+                    Per user cost (@amount1)
                 </th>
                 <th>
                     Password
@@ -87,13 +88,13 @@
 
         <tbody>
 
-            @foreach (var person in (List<ResellerViewModel>)ViewBag.lstClients)
+            @foreach (var person in list)
             {
                 var m = !string.IsNullOrEmpty(person.MaxUser) ? (Convert.ToInt32(person.MaxUser) * person.ResellerAmount) : 0;
 
                 <tr>
                     <td>
-                        <input type="checkbox" class="chk" id="" name="id[]" data-deviceid="@person.DeviceID" data-amt="@m" value="@person.CustomerID">
+                        <input type="checkbox" class="chk" id="@person.CustomerID" onclick="addToCart('@person.CustomerID')" name="id[]" data-deviceid="@person.DeviceID" data-maxuser="@person.MaxUser" data-amt="@m" value="@person.CustomerID">
                     </td>
                     <td>@person.CustomerName</td>
                     <td style="width: 16.66%">@person.DeviceID</td>
@@ -102,7 +103,7 @@
                     <td>@person.Mobile</td>
                     <td>@person.City</td>
                     <td>@person.State</td>
-                    <td> @Convert.ToInt32(person.MaxUser)</td>
+                    <td style="width: 10.66%"> @Convert.ToInt32(person.MaxUser)</td>
 
                     <td> @m</td>
 
@@ -111,7 +112,10 @@
                         <a href="/Home/EditResellerClient/@person.CustomerID" data-id="@person.CustomerID" class="btn btn-primary">
                             Edit
                         </a>
-                        <a data-id="@person.CustomerID" class="btn btn-warning">
+                        <a data-id="@person.CustomerID" data-maxuser="@person.MaxUser" data-amount="@m" data-deviceid="@person.DeviceID" data-cust="@person.CustomerID" class="btn btn-success">
+                            Add To Cart
+                        </a>
+                        <a data-id="@person.CustomerID" data-maxuser="@person.MaxUser" data-amount="@m" data-deviceid="@person.DeviceID" data-cust="@person.CustomerID" class="btn btn-warning">
                             Pay now
                         </a>
                     </td>
@@ -119,23 +123,39 @@
             }
         </tbody>
     </table>
-
-
-
 </div>
 <div class="modal fade" id="deleteModal" data-custom- tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body text-center">
-                <h4 style="display: block;">You will not be able to make client after you proceed</h4>
+                <h4>Amount </h4>: <input type="number" class="form-control" min="1" max="9999999" id="translationamount" />
+
+                <h4 style="display: block;">You will not be able to make max user modification after you proceed</h4>
             </div>
             <div class="modal-footer" style="text-align:center !important">
                 <button class="btn btn-default" tabindex="2" data-dismiss="modal">No, cancel pls!</button>
-                <button class="btn btn-danger" id="delete-btn">Proceed!</button>
+                <button class="btn btn-success" id="delete-btn">Submit!</button>
             </div>
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="addToModal" data-custom- tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <h4>Amount </h4>: <input type="number" class="form-control" min="1" max="9999999" id="txtmaxUser" />
+
+                <h4 style="display: block;">You will not be able to remove from cart user modification after you proceed.(Do refresh page to remove from cart)</h4>
+            </div>
+            <div class="modal-footer" style="text-align:center !important">
+                <button class="btn btn-default" tabindex="2" data-dismiss="modal">No, cancel pls!</button>
+                <button class="btn btn-success" id="delete-btn1">Submit!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script src="~/Scripts/jquery-3.4.1.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
@@ -147,16 +167,31 @@
 <script src="~/Scripts/bootstrap.min.js"></script>
 <script>
     var values = null; var totalAmount = 0; var oTable = null;
+        var key = '@System.Configuration.ConfigurationManager.AppSettings["PaymentOption"].ToString()';
+
+    function addToCart(id) {
+           var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
+        var user = userInfo.find(x => x.CustomerID == id);
+
+        $('#addToModal').data('id', JSON.stringify(user)).modal('show');
+        $("#translationamount").val(user.MaxUser)
+        $('#addToModal').modal('show');
+    }
 
     $("#addtoCart").on("click", function () {
-        values = []; totalAmount = 0;
+        debugger
 
-         oTable.$('input:checked').each(function () {
-            var obj = {};
-            obj.id = $(this).val();
-            obj.amt = $(this).data('amt');
-            values.push(obj);
-        });
+        if (values == null) {
+            values = [];
+            oTable.$('input:checked').each(function () {
+                var obj = {};
+                obj.id = $(this).val();
+                obj.amt = $(this).data('amt');
+                obj.maxuser = $(this).data('maxuser');
+                values.push(obj);
+            });
+        }
+        totalAmount = 0;
 
         if (values == undefined || values.length == 0 || values == []) {
             toastr.error('Please select atleast one checkbox for add to cart');
@@ -166,11 +201,10 @@
             $.each(values, function (i, a) {
                 totalAmount += parseInt(a.amt)
             })
-            var key = '@System.Configuration.ConfigurationManager.AppSettings["PaymentOption"].ToString()';
             if (key == "RazorPay") {
                 var options = {
                     "key": "rzp_test_4eINMyNiQesjcj", // Enter the Key ID generated from the Dashboard
-                    "amount": totalAmount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                    "amount": totalAmount *100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                     "currency": "INR",
                     "name": '@user.Name',
                     "description": '@user.Name users',
@@ -258,12 +292,6 @@
         }
     })
 
-
-       function getRandomInt() {
-                  return Math.floor(100000 + Math.random() * 900000);
-             }
-
-
     $(function () {
          oTable = $('#myTable').dataTable({
             stateSave: true
@@ -291,13 +319,60 @@
         });
     });
 
+    $("#myTable").on("click", "a.btn-success", function () {
+         //use Json.parse to convert string to Json
+        var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
+        var id = $(this).data('id');
+        var user = userInfo.find(x => x.CustomerID == id);
+
+        $('#addToModal').data('id', JSON.stringify(user)).modal('show');
+        $('#addToModal').modal('show');
+    });
+
+    $('#delete-btn1').click(function () {
+        if ($("#txtmaxUser").val() == "") {
+            toastr.error('Max user value is required!!');
+            return;
+        }
+        var user = JSON.parse($('#addToModal').data('id'));
+        if (user != null) {
+            debugger
+            $("#" + user.CustomerID).prop('checked', true);
+            var obj = {};
+            obj.id = user.CustomerID;
+
+            obj.amt = user.ResellerAmount * parseInt($("#txtmaxUser").val());
+            obj.maxuser = $("#txtmaxUser").val();
+            if (values == null) {
+                values = [];
+            }
+            values.push(obj);
+            toastr.success('Added to cart');
+            $("#txtmaxUser").val("");
+            $('#addToModal').modal('hide');
+
+        }
+    });
+
     $("#myTable").on("click", "a.btn-warning", function () {
          //use Json.parse to convert string to Json
         var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
-
-                var key = '@System.Configuration.ConfigurationManager.AppSettings["PaymentOption"].ToString()';
         var id = $(this).data('id');
-        var user = userInfo.filter((x) => { return x.CustomerID == id; })
+        var user = userInfo.find(x => x.CustomerID == id);
+
+        $('#deleteModal').data('id', JSON.stringify(user)).modal('show');
+        $("#translationamount").val(user.MaxUser)
+        $('#deleteModal').modal('show');
+    });
+
+    $('#delete-btn').click(function () {
+        var id = $('#deleteModal').data('id');
+        if ($("#translationamount").val()=="") {
+            toastr.error('Max user value is required!!');
+            return;
+        }
+        var user = []; var maxUser = $("#translationamount").val();
+        user.push(JSON.parse(id));
 
         var loadScript = function (path) {
             var result = $.Deferred(),
@@ -323,67 +398,77 @@
 
             return result.promise();
         }
-         if (key === "PayUMoney") {
+        if (key === "PayUMoney") {
+                var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
+                var uid = getRandomInt();
+                var totalPrice = user[0].ResellerAmount * parseInt($("#translationamount").val());
+                var productInfo = user[0].DeviceID;
+                var recipient_name = user[0].CustomerName + ',' + user[0].CustomerID;
+                var email = user[0].emailid;
+                var merchantSalt = '@System.Configuration.ConfigurationManager.AppSettings["SALT"]';
+                var hashString = merchantKey + '|' + uid + '|' + totalPrice + '|' + productInfo + '|' + recipient_name + '|' + email + '|||||||||||' + merchantSalt;
+                var shaObj = new jsSHA("SHA-512", "TEXT");
+                shaObj.update(hashString);
+                var hash = shaObj.getHash("HEX");
 
+                var key1 = $('<input></input>').attr('type', 'hidden').attr('name', "key").val(merchantKey);
+                var key2 = $('<input></input>').attr('type', 'hidden').attr('name', "txnid").val(uid);
 
-                    var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
-                    var uid = getRandomInt();
-             var totalPrice = user[0].ResellerAmount * user[0].MaxUser;
-             var productInfo = user[0].DeviceID;
-             var recipient_name = user[0].CustomerName + ',' + user[0].CustomerID;
-             var email = user[0].emailid;
-                    var merchantSalt = '@System.Configuration.ConfigurationManager.AppSettings["SALT"]';
-                    var hashString = merchantKey + '|' + uid + '|' + totalPrice + '|' + productInfo + '|' + recipient_name + '|' + email + '|||||||||||' + merchantSalt;
-                    var shaObj = new jsSHA("SHA-512", "TEXT");
-                    shaObj.update(hashString);
-                    var hash = shaObj.getHash("HEX");
+                var key3 = $('<input></input>').attr('type', 'hidden').attr('name', "amount").val(totalPrice);
 
-                    var key1 = $('<input></input>').attr('type', 'hidden').attr('name', "key").val(merchantKey);
-                    var key2 = $('<input></input>').attr('type', 'hidden').attr('name', "txnid").val(uid);
+                var key4 = $('<input></input>').attr('type', 'hidden').attr('name', "productinfo").val(productInfo);
 
-                    var key3 = $('<input></input>').attr('type', 'hidden').attr('name', "amount").val(totalPrice);
+                var key5 = $('<input></input>').attr('type', 'hidden').attr('name', "firstname").val(recipient_name);
 
-                    var key4 = $('<input></input>').attr('type', 'hidden').attr('name', "productinfo").val(productInfo);
+                var key6 = $('<input></input>').attr('type', 'hidden').attr('name', "email").val(email);
 
-                    var key5 = $('<input></input>').attr('type', 'hidden').attr('name', "firstname").val(recipient_name);
+                var key7 = $('<input></input>').attr('type', 'hidden').attr('name', "phone").val(user.Mobile);
 
-                    var key6 = $('<input></input>').attr('type', 'hidden').attr('name', "email").val(email);
+            var key8 = $('<input></input>').attr('type', 'hidden').attr('name', "surl").val(window.location.origin + '/Return/ResellerPayU');
 
-                    var key7 = $('<input></input>').attr('type', 'hidden').attr('name', "phone").val(user.Mobile);
+                var key9 = $('<input></input>').attr('type', 'hidden').attr('name', "furl").val(window.location.origin + '/Home/ResellerFail');
 
-                    var key8 = $('<input></input>').attr('type', 'hidden').attr('name', "surl").val(window.location.origin + '/Return/Return');
+                var key10 = $('<input></input>').attr('type', 'hidden').attr('name', "hash").val(hash);
 
+                var key11 = $('<input></input>').attr('type', 'hidden').attr('name', "service_provider").val();
 
-             var key9 = $('<input></input>').attr('type', 'hidden').attr('name', "furl").val(window.location.origin + '/Home/ResellerFail');
+                var form = $('<form/></form>');
 
+                form.attr("id", "payuform");
 
-                    var key10 = $('<input></input>').attr('type', 'hidden').attr('name', "hash").val(hash);
+                form.attr("action", '@System.Configuration.ConfigurationManager.AppSettings["PAYU_BASE_URL"]');
 
-                    var key11 = $('<input></input>').attr('type', 'hidden').attr('name', "service_provider").val();
+                form.attr("method", "POST");
 
+                form.attr("style", "display:none;");
 
-                    var form = $('<form/></form>');
-
-                    form.attr("id", "payuform");
-
-                    form.attr("action", '@System.Configuration.ConfigurationManager.AppSettings["PAYU_BASE_URL"]');
-
-                    form.attr("method", "POST");
-
-                    form.attr("style", "display:none;");
-
-                    form.append(key1, key2, key3, key4, key5, key6, key7, key8, key9, key10, key11);
-
-                    $("body").append(form);
-                    form.submit();
-                }
-                else {
-                    loadScript('https://checkout.razorpay.com/v1/checkout.js').then(function () {
+                form.append(key1, key2, key3, key4, key5, key6, key7, key8, key9, key10, key11);
+                 $("body").append(form);
+                 var userAmount = [];
+                 var obj = {};
+                 obj.id = user[0].CustomerID;
+                 obj.amt = user[0].ResellerAmount * parseInt($("#translationamount").val());
+                 obj.maxuser = $("#translationamount").val();
+                     userAmount.push(obj);
+                 $.get('/Return/StorePayYouMoneyJson?param=' + JSON.stringify(userAmount), function (data) {
+                     if (data) {
+                         form.submit();
+                     }
+                 });
+         }
+         else {
+             var userAmount = [];
+             var obj = {};
+             obj.id = user[0].CustomerID;
+             obj.amt = user[0].ResellerAmount * parseInt($("#translationamount").val());
+             obj.maxuser = $("#translationamount").val();
+             userAmount.push(obj);
+             loadScript('https://checkout.razorpay.com/v1/checkout.js').then(function () {
                 window.r = new Razorpay({
                     key: 'rzp_test_4eINMyNiQesjcj',
                     protocol: 'https',
                     hostname: 'api.razorpay.com',
-                    amount: user[0].ResellerAmount * user[0].MaxUser,
+                    amount: (user[0].ResellerAmount * parseInt($("#translationamount").val())) * 10,
                     name: user[0].CustomerName,
                     description: user[0].DeviceID,
                     prefill: {
@@ -392,7 +477,7 @@
                         contact: user[0].Mobile
                     },
                     handler: function (transaction) {
-                        $.get('/Return/HandleRazorPay?deviceId=' + user[0].DeviceID, function (data) {
+                        $.post('/Return/HandleResellerPayments', { param: JSON.stringify(userAmount) }, function (data) {
                             if (data != null) {
                                 if (data.status == "Failed") {
                                     location.href = '/Home/ResellerFail';
@@ -407,31 +492,12 @@
                         r.open()
             });
                 }
-
-
     });
 
-    $('#delete-btn').click(function () {
-        var id = $('#deleteModal').data('id');
+    function getRandomInt() {
+        return Math.floor(100000 + Math.random() * 900000);
+    }
 
-        $.ajax({
-            type: "POST",
-            url: "/Home/DeleteClient",
-            data: { id: id },
-            success: function (response) {
-                if (response.status != "Failed") {
-                    $('#deleteModal').modal('hide');
-                    location.reload();
-                }
-                else {
-                    $('#deleteModal').modal('hide');
-                }
-            },
-            error: function (error) {
-                toastr.error(error)
-            }
-        });
-    });
 
 </script>
 <style>
