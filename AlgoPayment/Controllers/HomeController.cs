@@ -653,7 +653,7 @@ namespace AlgoPayment.Controllers
                                     if (!string.IsNullOrEmpty(algo.DateExpiry))
                                     {
                                         oldDate = DateTime.ParseExact(algo.DateExpiry, "dd-mm-yyyy", CultureInfo.InvariantCulture).Date;
-                                        if (user1.UserRole == "reseller" && date.Date > oldDate.Value.Date)
+                                        if (user1.UserRole == "reseller" && date.Date.Date < oldDate.Value.Date)
                                         {
                                             date = DateTime.ParseExact(algo.DateExpiry, "dd-MM-yyyy", CultureInfo.InvariantCulture);
                                         }
