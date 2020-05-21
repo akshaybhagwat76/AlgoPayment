@@ -41,7 +41,7 @@
 
 <!-- widgets -->
 <div class="container">
-    <button class="btn btn-success" id="addtoCart">Add selected to cart</button>
+    <button class="btn btn-success" id="addtoCart">Payment Cart</button>
     <a class="btn btn-info" href="/Home/EditResellerClient/0" id="addtoCart">Add Client</a>
     <br /><br />
     <table class="table table-striped table-bordered table-hover" id="myTable" style="
@@ -75,7 +75,7 @@
                     Max Users
                 </th>
                 <th>
-                    Per user cost (@amount1)
+                    Total Amount (@amount1)
                 </th>
                 <th>
                     Password
@@ -94,7 +94,7 @@
 
                 <tr>
                     <td>
-                        <input type="checkbox" class="chk" id="@person.CustomerID" onclick="addToCart('@person.CustomerID')" name="id[]" data-deviceid="@person.DeviceID" data-maxuser="@person.MaxUser" data-amt="@m" value="@person.CustomerID">
+                        <input type="checkbox" class="chk" id="@person.CustomerID" onclick="addToCart(this,'@person.CustomerID')" name="id[]" data-deviceid="@person.DeviceID" data-maxuser="@person.MaxUser" data-amt="@m" value="@person.CustomerID">
                     </td>
                     <td>@person.CustomerName</td>
                     <td style="width: 16.66%">@person.DeviceID</td>
@@ -128,12 +128,12 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body text-center">
-                <h4>Amount </h4>: <input type="number" class="form-control" min="1" max="9999999" id="translationamount" />
+                <h4>Max users </h4>: <input type="number" class="form-control" min="1" max="9999999" id="translationamount" />
 
-                <h4 style="display: block;">You will not be able to make max user modification after you proceed</h4>
+                <h4 style="display: block;">You will not be able to change the count of maximum users after you proceed</h4>
             </div>
             <div class="modal-footer" style="text-align:center !important">
-                <button class="btn btn-default" tabindex="2" data-dismiss="modal">No, cancel pls!</button>
+                <button class="btn btn-default" id="deleteModalCancel" tabindex="2" data-dismiss="modal">No, cancel pls!</button>
                 <button class="btn btn-success" id="delete-btn">Submit!</button>
             </div>
         </div>
@@ -144,12 +144,12 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body text-center">
-                <h4>Amount </h4>: <input type="number" class="form-control" min="1" max="9999999" id="txtmaxUser" />
+                <h4>Max users </h4>: <input type="number" class="form-control" min="1" max="9999999" id="txtmaxUser" />
 
-                <h4 style="display: block;">You will not be able to remove from cart user modification after you proceed.(Do refresh page to remove from cart)</h4>
+                                     <h4 style="display: block;">You will not be able to change the count of maximum users after you proceed.(Do refresh page to remove from cart)</h4>
             </div>
             <div class="modal-footer" style="text-align:center !important">
-                <button class="btn btn-default" tabindex="2" data-dismiss="modal">No, cancel pls!</button>
+                <button class="btn btn-default" id="addTocartCancel" onclick="cancel()" tabindex="2" data-dismiss="modal">No, cancel pls!</button>
                 <button class="btn btn-success" id="delete-btn1">Submit!</button>
             </div>
         </div>
@@ -166,21 +166,44 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="~/Scripts/bootstrap.min.js"></script>
 <script>
-    var values = null; var totalAmount = 0; var oTable = null;
+    var values = null; var totalAmount = 0; var oTable = null; var isCancelled = false; var isSubmitted1 = false; var isModel1 = false;
         var key = '@System.Configuration.ConfigurationManager.AppSettings["PaymentOption"].ToString()';
+   
+    function addToCart($this, id) {
+        var ischecked = $('#' + $this.id).is(':checked'); 
+        if (ischecked) {
+            var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
+            var user = userInfo.find(x => x.CustomerID == id);
 
-    function addToCart(id) {
-           var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
-        var user = userInfo.find(x => x.CustomerID == id);
+            $('#addToModal').data('id', JSON.stringify(user)).modal('show');
+            $("#txtmaxUser").val(user.MaxUser)
+            isSubmitted1 = false;
 
-        $('#addToModal').data('id', JSON.stringify(user)).modal('show');
-        $("#translationamount").val(user.MaxUser)
-        $('#addToModal').modal('show');
+            $('#addToModal').modal('show');
+        }
+        else {
+            isSubmitted = false;
+            isModel = false;
+        }
     }
+    $('#deleteModal').on('hidden.bs.modal', function () {
+            $("#" + JSON.parse($(this).data('id')).CustomerID).prop('checked', false);
+            $("#translationamount").val("");
+    });
+
+    //$('#addToModal').on('hidden.bs.modal', function () {
+    //    debugger
+    //    if (!isSubmitted1 && !isModel1) {
+    //        $("#" + JSON.parse($(this).data('id')).CustomerID).prop('checked', false);
+    //        $("#txtmaxUser").val("");
+    //    }
+    //    if (isCancelled) {
+    //        $("#" + JSON.parse($(this).data('id')).CustomerID).prop('checked', false);
+    //        $("#txtmaxUser").val("");
+    //    }
+    //});
 
     $("#addtoCart").on("click", function () {
-        debugger
-
         if (values == null) {
             values = [];
             oTable.$('input:checked').each(function () {
@@ -227,6 +250,15 @@
                     },
                     "theme": {
                         "color": "#F37254"
+                    }, "modal": {
+                        
+                        "ondismiss": function () {
+
+                            $("#txtmaxUser").val("");
+                            $("#translationamount").val("");
+                            values = [];
+                            $('.modal').modal('hide') 
+                        }
                     }
                 };
                 var rzp1 = new Razorpay(options);
@@ -320,23 +352,32 @@
     });
 
     $("#myTable").on("click", "a.btn-success", function () {
+        debugger
          //use Json.parse to convert string to Json
         var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
         var id = $(this).data('id');
         var user = userInfo.find(x => x.CustomerID == id);
 
         $('#addToModal').data('id', JSON.stringify(user)).modal('show');
+        $("#txtmaxUser").val(user.MaxUser);
+        isModel1 = true;
         $('#addToModal').modal('show');
     });
 
+    function cancel() {
+        isCancelled = true;
+    }
+
     $('#delete-btn1').click(function () {
+        debugger
+        isSubmitted1 = true;
+        isModel = true;
         if ($("#txtmaxUser").val() == "") {
             toastr.error('Max user value is required!!');
             return;
         }
         var user = JSON.parse($('#addToModal').data('id'));
         if (user != null) {
-            debugger
             $("#" + user.CustomerID).prop('checked', true);
             var obj = {};
             obj.id = user.CustomerID;
@@ -349,23 +390,26 @@
             values.push(obj);
             toastr.success('Added to cart');
             $("#txtmaxUser").val("");
+            isSubmitted1 = false;
             $('#addToModal').modal('hide');
 
         }
     });
 
     $("#myTable").on("click", "a.btn-warning", function () {
+        debugger
          //use Json.parse to convert string to Json
         var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
         var id = $(this).data('id');
         var user = userInfo.find(x => x.CustomerID == id);
-
+        isModel = true;
         $('#deleteModal').data('id', JSON.stringify(user)).modal('show');
-        $("#translationamount").val(user.MaxUser)
+        $("#translationamount").val(user.MaxUser);
         $('#deleteModal').modal('show');
     });
 
     $('#delete-btn').click(function () {
+
         var id = $('#deleteModal').data('id');
         if ($("#translationamount").val()=="") {
             toastr.error('Max user value is required!!');
@@ -468,13 +512,22 @@
                     key: 'rzp_test_4eINMyNiQesjcj',
                     protocol: 'https',
                     hostname: 'api.razorpay.com',
-                    amount: (user[0].ResellerAmount * parseInt($("#translationamount").val())) * 10,
+                    amount: (user[0].ResellerAmount * parseInt($("#translationamount").val())) * 100,
                     name: user[0].CustomerName,
                     description: user[0].DeviceID,
                     prefill: {
                         name: user[0].CustomerName,
                         email: user[0].emailid,
                         contact: user[0].Mobile
+                    },
+                    modal: {
+                        "ondismiss": function () {
+
+                            $("#txtmaxUser").val("");
+                            $("#translationamount").val("");
+                            values = [];
+                            $('.modal').modal('hide') 
+                        }
                     },
                     handler: function (transaction) {
                         $.post('/Return/HandleResellerPayments', { param: JSON.stringify(userAmount) }, function (data) {

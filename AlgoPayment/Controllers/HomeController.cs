@@ -645,7 +645,7 @@ namespace AlgoPayment.Controllers
 
                                     if (categoryVM.DateExpiry.Contains("-"))
                                     {
-                                        categoryVM.DateExpiry.Replace("-", "/");
+                                        categoryVM.DateExpiry= categoryVM.DateExpiry.Replace("-", "/");
                                     }
 
                                     DateTime date = DateTime.ParseExact(categoryVM.DateExpiry, "dd/MM/yyyy", CultureInfo.InvariantCulture);
