@@ -48,96 +48,101 @@
                 <form id="myForm" class="m-t" role="form" action="javascript:;">
                     <div class="form-horizontal">
                         @Html.HiddenFor(model => model.CustomerID)
-                        @Html.HiddenFor(model => model.MaxUser)
-
-                        <div class="form-group">
-                            @Html.Label("Customer Name", new { @class = "control-label col-md-2 requiredLabel" })
-                            <div class="col-md-5">
-                                @Html.EditorFor(model => model.CustomerName, new { htmlAttributes = new { @class = "form-control required" } })
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            @Html.Label("Email", new { @class = "control-label col-md-2" })
-                            <div class="col-md-4">
-                                @Html.EditorFor(model => model.emailid, new { htmlAttributes = new { @class = "form-control required" } })
-
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            @Html.Label("Device ID", new { @class = "control-label col-md-2" })
-                            <div class="col-md-2">
-                                @Html.EditorFor(model => model.DeviceID, new { htmlAttributes = new { @class = "form-control required" } })
-
-                            </div>
-                        </div>
-
-
-                        <div class="form-group">
-                            @Html.Label("Phone", new { @class = "control-label col-md-2" })
-                            <div class="col-md-2">
-                                @Html.EditorFor(model => model.Mobile, new { htmlAttributes = new { @class = "form-control required" } })
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            @Html.Label("City", new { @class = "control-label col-md-2" })
-                            <div class="col-md-2">
-                                @Html.EditorFor(model => model.City, new { htmlAttributes = new { @class = "form-control required" } })
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            @Html.Label("App Name", new { @class = "control-label col-md-2" })
-                            <div class="col-md-2">
-                                @Html.EditorFor(model => model.AppName, new { htmlAttributes = new { @class = "form-control required" } })
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            @Html.Label("State", new { @class = "control-label col-md-2" })
-                            <div class="col-md-2">
-                                @Html.EditorFor(model => model.State, new { htmlAttributes = new { @class = "form-control required" } })
-                            </div>
-                        </div>
-
-                        @*<div class="form-group">
-            @Html.Label("Max user", new { @class = "control-label col-md-2" })
-            <div class="col-md-2">
-                <input type="number" class="form-control required" value="@Model.MaxUser" name="MaxUser" min="1" max="9999999" id="txtMaxUser" />
-            </div>
-        </div>*@
-
                         @if (Model.CustomerID > 0)
                         {
+                            @Html.HiddenFor(model => model.MaxUser)
+                        }
                             <div class="form-group">
-                                @Html.Label("Date Expiry", new { @class = "control-label col-md-2" })
-                                <div class="col-md-2">
-                                    <div class="input-group input-append date" id="datePicker">
-                                        <input type="text" class="form-control required" name="DateExpiry" value="@Model.DateExpiry" />
-                                        <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
-                                    </div>
+                                @Html.Label("Customer Name", new { @class = "control-label col-md-2 requiredLabel" })
+                                <div class="col-md-5">
+                                    @Html.EditorFor(model => model.CustomerName, new { htmlAttributes = new { @class = "form-control required" } })
                                 </div>
                             </div>
-                        }
+
+                            <div class="form-group">
+                                @Html.Label("Email", new { @class = "control-label col-md-2" })
+                                <div class="col-md-4">
+                                    @Html.EditorFor(model => model.emailid, new { htmlAttributes = new { @class = "form-control required" } })
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.Label("Device ID", new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.DeviceID, new { htmlAttributes = new { @class = "form-control required" } })
+
+                                </div>
+                            </div>
 
 
-                        <div class="form-group">
-                            @Html.Label("Password", new { @class = "control-label col-md-2" })
-                            <div class="col-md-2">
-                                <input type="password" name="Password" class="form-control required" value="@Model.Password" />
+                            <div class="form-group">
+                                @Html.Label("Phone", new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.Mobile, new { htmlAttributes = new { @class = "form-control required" } })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.Label("City", new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.City, new { htmlAttributes = new { @class = "form-control required" } })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.Label("App Name", new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.AppName, new { htmlAttributes = new { @class = "form-control required" } })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.Label("State", new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.State, new { htmlAttributes = new { @class = "form-control required" } })
+                                </div>
+                            </div>
+                            @if (Model.CustomerID == 0)
+                            {
+
+                                <div class="form-group">
+                                    @Html.Label("Max user", new { @class = "control-label col-md-2" })
+                                    <div class="col-md-2">
+                                        <input type="number" class="form-control required" value="@Model.MaxUser" name="MaxUser" min="1" max="9999999" id="txtMaxUser" />
+                                    </div>
+                                </div>
+                            }
+
+                            @if (Model.CustomerID > 0)
+                            {
+                                <div class="form-group">
+                                    @Html.Label("Date Expiry", new { @class = "control-label col-md-2" })
+                                    <div class="col-md-2">
+                                        <div class="input-group input-append date" id="datePicker">
+                                            <input type="text" class="form-control required" name="DateExpiry" value="@Model.DateExpiry" />
+                                            <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+                            <div class="form-group">
+                                @Html.Label("Password", new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    <input type="password" name="Password" class="form-control required" value="@Model.Password" />
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <div class="col-md-offset-2 col-md-10">
+                                    <input type="submit" id="btn-submit" value="Save" class="btn btn-primary" />
+                                    <a href="/Home/ResellerPage" class="btn btn-default">Cancel</a>
+                                    <label id="lblError" class="inline"></label>
+                                </div>
                             </div>
                         </div>
-
-
-                        <div class="form-group">
-                            <div class="col-md-offset-2 col-md-10">
-                                <input type="submit" id="btn-submit" value="Save" class="btn btn-primary" />
-                                <a href="/Home/ResellerPage" class="btn btn-default">Cancel</a>
-                                <label id="lblError" class="inline"></label>
-                            </div>
-                        </div>
-                    </div>
                 </form>
             </div>
         </div>

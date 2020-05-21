@@ -168,9 +168,9 @@
 <script>
     var values = null; var totalAmount = 0; var oTable = null; var isCancelled = false; var isSubmitted1 = false; var isModel1 = false;
         var key = '@System.Configuration.ConfigurationManager.AppSettings["PaymentOption"].ToString()';
-   
+
     function addToCart($this, id) {
-        var ischecked = $('#' + $this.id).is(':checked'); 
+        var ischecked = $('#' + $this.id).is(':checked');
         if (ischecked) {
             var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
             var user = userInfo.find(x => x.CustomerID == id);
@@ -225,7 +225,77 @@
                 totalAmount += parseInt(a.amt)
             })
             if (key == "RazorPay") {
-                var options = {
+
+                var loadScript = function (path) {
+                    var result = $.Deferred(),
+                        script = document.createElement("script");
+
+                    script.async = "async";
+                    script.type = "text/javascript";
+                    script.src = path;
+                    script.onload = script.onreadystatechange = function (_, isAbort) {
+                        if (!script.readyState || /loaded|complete/.test(script.readyState)) {
+                            if (isAbort)
+                                result.reject();
+                            else
+                                result.resolve();
+                        }
+                    };
+
+                    script.onerror = function () {
+                        result.reject();
+                    };
+
+                    $("head")[0].appendChild(script);
+
+                    return result.promise();
+                }
+
+
+            loadScript('https://checkout.razorpay.com/v1/checkout.js').then(function () {
+                window.r = new Razorpay({
+                    key: 'rzp_test_4eINMyNiQesjcj',
+                    protocol: 'https',
+                    hostname: 'api.razorpay.com',
+                    amount: totalAmount * 100,
+                    name: '@user.Name',
+                    description:  '@user.Name users',
+                    prefill: {
+                        name: '@user.Name',
+                        email:  '@user.emailid',
+                        contact:  '@user.Mobile'
+                    },
+                    modal: {
+
+                        "ondismiss": function () {
+                            var allCHKPages = oTable.fnGetNodes();
+                            $('input[type="checkbox"]', allCHKPages).prop('checked', false);
+
+                            $("#txtmaxUser").val("");
+                            $("#translationamount").val("");
+                            values = [];
+                            $(".razorpay-container").remove();
+                        }
+                    },
+                    handler: function (transaction) {
+                        $.post('/Return/HandleResellerPayments', { param: JSON.stringify(values) }, function (data) {
+                            if (data != null) {
+                                if (data.status == "Failed") {
+                                    location.href = '/Home/ResellerFail';
+                                }
+                                else {
+                                    location.href = '/Home/ResellerSuccess';
+                                }
+                            }
+                        });
+                    }
+                });
+                r.open();
+
+            });
+
+
+                @*var options = {
                     "key": "rzp_test_4eINMyNiQesjcj", // Enter the Key ID generated from the Dashboard
                     "amount": totalAmount *100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                     "currency": "INR",
@@ -251,19 +321,23 @@
                     "theme": {
                         "color": "#F37254"
                     }, "modal": {
-                        
+
                         "ondismiss": function () {
+                            debugger
+                            var allCHKPages = oTable.fnGetNodes();
+                            $('input[type="checkbox"]', allCHKPages).prop('checked', false);
 
                             $("#txtmaxUser").val("");
                             $("#translationamount").val("");
                             values = [];
-                            $('.modal').modal('hide') 
+                            $(".razorpay-container").remove();
+                            //$('.modal').modal('hide')
                         }
                     }
                 };
                 var rzp1 = new Razorpay(options);
-                rzp1.open();
-                e.preventDefault();
+                rzp1.open();*@
+                //e.preventDefault();
             }
             else {
                 var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
@@ -340,6 +414,8 @@
             }
             $(this).toggleClass('allChecked');
         })
+        var allCHKPages = oTable.fnGetNodes();
+        $('input[type="checkbox"]', allCHKPages).prop('checked', false);
 
     })
 
@@ -352,7 +428,6 @@
     });
 
     $("#myTable").on("click", "a.btn-success", function () {
-        debugger
          //use Json.parse to convert string to Json
         var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
         var id = $(this).data('id');
@@ -369,7 +444,6 @@
     }
 
     $('#delete-btn1').click(function () {
-        debugger
         isSubmitted1 = true;
         isModel = true;
         if ($("#txtmaxUser").val() == "") {
@@ -397,7 +471,6 @@
     });
 
     $("#myTable").on("click", "a.btn-warning", function () {
-        debugger
          //use Json.parse to convert string to Json
         var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
         var id = $(this).data('id');
@@ -442,6 +515,7 @@
 
             return result.promise();
         }
+
         if (key === "PayUMoney") {
                 var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
                 var uid = getRandomInt();
@@ -522,11 +596,11 @@
                     },
                     modal: {
                         "ondismiss": function () {
-
+                            debugger
                             $("#txtmaxUser").val("");
                             $("#translationamount").val("");
                             values = [];
-                            $('.modal').modal('hide') 
+                            $('.modal').modal('hide')
                         }
                     },
                     handler: function (transaction) {
