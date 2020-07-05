@@ -15,7 +15,7 @@ using System.Text;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
-
+using Razorpay.Api;
 namespace AlgoPayment.Controllers
 {
     public class HomeController : BaseController
@@ -35,6 +35,16 @@ namespace AlgoPayment.Controllers
 
         public ActionResult UserPage()
         {
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            Dictionary<string, object> input = new Dictionary<string, object>();
+            input.Add("amount", 5000); // this amount should be same as transaction amount
+            input.Add("currency", "INR");
+            input.Add("payment_capture", 1);
+
+            RazorpayClient client = new RazorpayClient(ConfigurationManager.AppSettings["razorPayKey"], ConfigurationManager.AppSettings["razorPaySecret"]);
+            Razorpay.Api.Order order = client.Order.Create(input);
+            Session["razorPayOrderId"] = order["id"].ToString();
 
             using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
             {
