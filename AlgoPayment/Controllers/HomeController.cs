@@ -15,8 +15,6 @@ using System.Text;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
-using Xero.Api.Example.Applications.Public;
-using Xero.Api.Infrastructure.OAuth;
 
 namespace AlgoPayment.Controllers
 {
