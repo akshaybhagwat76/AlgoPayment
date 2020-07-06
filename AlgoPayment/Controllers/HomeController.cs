@@ -17,6 +17,8 @@ using System.Web.Configuration;
 using System.Web.Mvc;
 using Razorpay.Api;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json.Converters;
+using System.Dynamic;
 
 namespace AlgoPayment.Controllers
 {
@@ -45,6 +47,21 @@ namespace AlgoPayment.Controllers
             RazorpayClient client = new RazorpayClient(ConfigurationManager.AppSettings["razorPayKey"], ConfigurationManager.AppSettings["razorPaySecret"]);
             Razorpay.Api.Order order = client.Order.Create(input);
             Session["razorPayOrderId"] = order["id"].ToString();
+            input.Add("orderId", order["id"].ToString());
+            string getJsonConvertedDictionary = (new JavaScriptSerializer()).Serialize(input);
+            return getJsonConvertedDictionary;
+        }
+        public string RefreshRazorOrderId(int amount = 0)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            Dictionary<string, object> input = new Dictionary<string, object>();
+            input.Add("amount", amount); // this amount should be same as transaction amount
+            input.Add("currency", "INR");
+            input.Add("payment_capture", 1);
+
+            RazorpayClient client = new RazorpayClient(ConfigurationManager.AppSettings["razorPayKey"], ConfigurationManager.AppSettings["razorPaySecret"]);
+            Razorpay.Api.Order order = client.Order.Create(input);
+            Session["refreshedPayOrderId"] = order["id"].ToString();
             input.Add("orderId", order["id"].ToString());
             string getJsonConvertedDictionary = (new JavaScriptSerializer()).Serialize(input);
             return getJsonConvertedDictionary;
@@ -102,6 +119,13 @@ namespace AlgoPayment.Controllers
             cookie.Expires = DateTime.Now.AddMinutes(10);
             cookie.Value = maxUser.ToString();
             Response.Cookies.Add(cookie);
+            return Json(tokanizeDictionary, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public JsonResult RefeshRazorOrderId(int amount)
+        {
+            string tokanizeDictionary = RefreshRazorOrderId(amount);
             return Json(tokanizeDictionary, JsonRequestBehavior.AllowGet);
         }
 
@@ -213,7 +237,7 @@ namespace AlgoPayment.Controllers
                 {
                     user.CreatedDate = DateTime.Now;
                     user.UserRole = "client";
-                    
+
                     db.UserDetails.Add(user);
                     if (1 == db.SaveChanges())
                     {
@@ -290,20 +314,22 @@ namespace AlgoPayment.Controllers
                 foreach (var item in users)
                 {
                     var auser = algo.Where(x => x.CustomerID == item.Id).FirstOrDefault();
-                    var amount = settings.Where(x => x.ResellerId == item.Id).FirstOrDefault().Amount;
-                    ResellerViewModel obj = new ResellerViewModel();
-                    obj.CustomerID = item.Id;
-                    obj.AppName = auser != null ? auser.AppName : "N/A";
-                    obj.emailid = item.emailid;
-                    obj.DateExpiry = auser != null ? auser.DateExpiry : "N/A";
-                    obj.DeviceID = auser != null ? auser.DeviceID : "N/A";
-                    obj.CustomerName = item.Name;
-                    obj.City = item.City;
-                    obj.Password = item.Password;
-                    obj.State = item.State;
-                    obj.Mobile = item.Mobile;
-                    obj.ResellerAmount = amount;
-
+                    var amount = settings.Where(x => x.ResellerId == item.Id).FirstOrDefault();
+                        ResellerViewModel obj = new ResellerViewModel();
+                    if (amount != null)
+                    {
+                        obj.CustomerID = item.Id;
+                        obj.AppName = auser != null ? auser.AppName : "N/A";
+                        obj.emailid = item.emailid;
+                        obj.DateExpiry = auser != null ? auser.DateExpiry : "N/A";
+                        obj.DeviceID = auser != null ? auser.DeviceID : "N/A";
+                        obj.CustomerName = item.Name;
+                        obj.City = item.City;
+                        obj.Password = item.Password;
+                        obj.State = item.State;
+                        obj.Mobile = item.Mobile;
+                        obj.ResellerAmount = amount.Amount;
+                    }
                     lst.Add(obj);
                 }
                 ViewBag.lstResellers = lst;
@@ -533,9 +559,12 @@ namespace AlgoPayment.Controllers
                 var loggedInUser = (UserCredentials)(Session["UserCredentials"]);
                 if (loggedInUser != null)
                 {
-                    var amountUser = db.AppSettings.Where(x => x.ResellerId == loggedInUser.Id).FirstOrDefault().Amount;
+                    var amountUser = db.AppSettings.Where(x => x.ResellerId == loggedInUser.Id).FirstOrDefault();
+                    var clients = new List<ResellerViewModel>();
+                    if (amountUser != null)
+                    {
 
-                    var clients = (from n in db.AlgoExpiries
+                        clients = (from n in db.AlgoExpiries
                                    from u in db.UserDetails
                                    where u.ResellerId == loggedInUser.Id && n.CustomerID == u.Id && u.UserRole == "resellerclient"
                                    select new ResellerViewModel
@@ -550,10 +579,10 @@ namespace AlgoPayment.Controllers
                                        MaxUser = n.MaxUser,
                                        Password = u.Password,
                                        State = u.State,
-                                       ResellerAmount = amountUser,
+                                       ResellerAmount = amountUser.Amount,
                                        Mobile = u.Mobile
                                    }).DistinctBy(x => x.CustomerID).ToList();
-
+                    }
                     ViewBag.lstClients = clients;
                 }
             }
@@ -610,6 +639,49 @@ namespace AlgoPayment.Controllers
             }
 
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddSevenDaysTrial(string request)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(request))
+                {
+                    var converter = new ExpandoObjectConverter();
+                    dynamic data = JsonConvert.DeserializeObject<ExpandoObject>(request, converter);
+                    UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
+                    if (data != null && user != null)
+                    {
+                        using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+                        {
+                            var algo = db.AlgoExpiries.FirstOrDefault(x => x.CustomerID == user.Id);
+                            if (algo == null)
+                            {
+                                algo = new AlgoExpiry();
+                            }
+                            algo.DateExpiry = DateTime.Now.AddDays(7).ToString("dd-MM-yyyy");
+                            algo.CustomerID = user.Id;
+                            algo.AppName = "Default";
+                            algo.MaxUser = data.MaxUsers;
+                            algo.DeviceID = data.DeviceID;
+                            db.AlgoExpiries.Add(algo);
+                            db.SaveChanges();
+                            Session["deviceID"] = data.DeviceID;
+                        }
+                    }
+
+                    return Json(new { data = data.DeviceID, status = "Success", error = Messages.BAD_DATA }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { data = false, status = "Failed", error = Messages.Somethingwentwrong }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { data = false, status = "Failed", error = ex.Message.ToString() }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         public JsonResult UpdateClient(ClientViewModel categoryVM)

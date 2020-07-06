@@ -16,19 +16,23 @@ namespace AlgoPayment.Helpers
                
                 MailMessage mm = new MailMessage();
 
-
-                mm.From = new MailAddress(ConfigurationManager.AppSettings["FromEmail"]);
-
+                mm.To.Add(to);
+                mm.From = new MailAddress(ConfigurationManager.AppSettings["EmailId"]);
                 mm.Subject = subject;
 
-                mm.To.Add(to);
 
                 mm.Body = data;
+
+                mm.IsBodyHtml = true;
+                
                 SmtpClient smtp = new SmtpClient();
+                smtp.UseDefaultCredentials = false;
+                smtp.Host = "smtp.gmail.com"; //Or Your SMTP Server Address
+                smtp.Credentials = new System.Net.NetworkCredential
+                     (ConfigurationManager.AppSettings["EmailId"], ConfigurationManager.AppSettings["EmailPassword"]);
+                //Or your Smtp Email ID and Password
                 smtp.EnableSsl = true;
-
                 smtp.Send(mm);
-
                 return "success";
             }
             catch (Exception ex)

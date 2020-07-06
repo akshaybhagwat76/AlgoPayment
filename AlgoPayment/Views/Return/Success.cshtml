@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "Success";
-
+    Layout = null;
     UserCredentials user = (UserCredentials)(Session["UserCredentials"]);
     if (user == null)
     {
@@ -11,6 +11,51 @@
     }
 }
 
-<h2>Status was successful. Your validity is extended</h2>
 
-    <a href="/Home/UserPage">Back to site</a>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success - AFL Writing Services</title>
+
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="https://amibrokeralgo.in/Home/Index">AFL Writing Services</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+
+
+        <br /><br />
+
+
+        <h2>Status was successful. Your validity is extended</h2>
+
+        <a href="/Home/UserPage">Back to site</a>
+
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year -  AFL Writing Services</p>
+        </footer>
+    </div>
+
+
+</body>
+</html>

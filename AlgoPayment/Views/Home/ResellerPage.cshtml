@@ -42,11 +42,10 @@
 <!-- widgets -->
 <div class="container">
     <button class="btn btn-success" id="addtoCart">Payment Cart</button>
+    <input type="hidden" name="razorOrderId" id="razorOrderId" />
     <a class="btn btn-info" href="/Home/EditResellerClient/0" id="addtoCart">Add Client</a>
     <br /><br />
-    <table class="table table-striped table-bordered table-hover" id="myTable" style="
-    /*margin-left: -255px;*/
-">
+    <table class="table table-striped table-bordered table-hover" id="myTable">
         <thead>
             <tr>
                 <th>Selection</th>
@@ -191,18 +190,6 @@
             $("#translationamount").val("");
     });
 
-    //$('#addToModal').on('hidden.bs.modal', function () {
-    //    debugger
-    //    if (!isSubmitted1 && !isModel1) {
-    //        $("#" + JSON.parse($(this).data('id')).CustomerID).prop('checked', false);
-    //        $("#txtmaxUser").val("");
-    //    }
-    //    if (isCancelled) {
-    //        $("#" + JSON.parse($(this).data('id')).CustomerID).prop('checked', false);
-    //        $("#txtmaxUser").val("");
-    //    }
-    //});
-
     $("#addtoCart").on("click", function () {
         if (values == null) {
             values = [];
@@ -251,93 +238,50 @@
                     return result.promise();
                 }
 
+                $.get('/Home/RefeshRazorOrderId?amount=' + totalAmount*100, function (data) {
+                    var jsonData = JSON.parse(data);
+                    $("#razorOrderId").val(jsonData.orderId);
+                    loadScript('https://checkout.razorpay.com/v1/checkout.js').then(function () {
+                        window.r = new Razorpay({
+                            key: '@System.Configuration.ConfigurationManager.AppSettings["razorPayKey"].ToString()',
+                            protocol: 'https',
+                            hostname: 'api.razorpay.com',
+                            amount: totalAmount * 100,
+                            name: '@user.Name',
+                            description: '@user.Name users',
+                            order_id: $("#razorOrderId").val(),
+                            prefill: {
+                                name: '@user.Name',
+                                email: '@user.emailid',
+                                contact: '@user.Mobile'
+                            },
+                            modal: {
+                                "ondismiss": function () {
+                                    var allCHKPages = oTable.fnGetNodes();
+                                    $('input[type="checkbox"]', allCHKPages).prop('checked', false);
 
-            loadScript('https://checkout.razorpay.com/v1/checkout.js').then(function () {
-                window.r = new Razorpay({
-                     key: '@System.Configuration.ConfigurationManager.AppSettings["razorPayKey"].ToString()',
-                    protocol: 'https',
-                    hostname: 'api.razorpay.com',
-                    amount: totalAmount * 100,
-                    name: '@user.Name',
-                    description:  '@user.Name users',
-                    prefill: {
-                        name: '@user.Name',
-                        email:  '@user.emailid',
-                        contact:  '@user.Mobile'
-                    },
-                    modal: {
-
-                        "ondismiss": function () {
-                            var allCHKPages = oTable.fnGetNodes();
-                            $('input[type="checkbox"]', allCHKPages).prop('checked', false);
-
-                            $("#txtmaxUser").val("");
-                            $("#translationamount").val("");
-                            values = [];
-                            $(".razorpay-container").remove();
-                        }
-                    },
-                    handler: function (transaction) {
-                        $.post('/Return/HandleResellerPayments', { param: JSON.stringify(values) }, function (data) {
-                            if (data != null) {
-                                if (data.status == "Failed") {
-                                    location.href = '/Home/ResellerFail';
+                                    $("#txtmaxUser").val("");
+                                    $("#translationamount").val("");
+                                    values = [];
+                                    $(".razorpay-container").remove();
                                 }
-                                else {
-                                    location.href = '/Home/ResellerSuccess';
-                                }
+                            },
+                            handler: function (transaction) {
+                                $.post('/Return/HandleResellerPayments', { param: JSON.stringify(values) }, function (data) {
+                                    if (data != null) {
+                                        if (data.status == "Failed") {
+                                            location.href = '/Home/ResellerFail';
+                                        }
+                                        else {
+                                            location.href = '/Home/ResellerSuccess';
+                                        }
+                                    }
+                                });
                             }
                         });
-                    }
-                });
                 r.open();
-
+                    });
             });
-
-
-                @*var options = {
-                    "key": "rzp_test_4eINMyNiQesjcj", // Enter the Key ID generated from the Dashboard
-                    "amount": totalAmount *100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-                    "currency": "INR",
-                    "name": '@user.Name',
-                    "description": '@user.Name users',
-                    "handler": function (response) {
-                        $.post('/Return/HandleResellerPayments',{ param: JSON.stringify(values) }, function (data) {
-                            if (data != null) {
-                                if (data.status == "Failed") {
-                                    location.href = '/Home/ResellerFail';
-                                }
-                                else {
-                                    location.href = '/Home/ResellerSuccess';
-                                }
-                            }
-                        });
-                    },
-                    "prefill": {
-                        "name": '@user.Name',
-                        "email": '@user.emailid',
-                        "contact": '@user.Mobile'
-                    },
-                    "theme": {
-                        "color": "#F37254"
-                    }, "modal": {
-
-                        "ondismiss": function () {
-                            debugger
-                            var allCHKPages = oTable.fnGetNodes();
-                            $('input[type="checkbox"]', allCHKPages).prop('checked', false);
-
-                            $("#txtmaxUser").val("");
-                            $("#translationamount").val("");
-                            values = [];
-                            $(".razorpay-container").remove();
-                            //$('.modal').modal('hide')
-                        }
-                    }
-                };
-                var rzp1 = new Razorpay(options);
-                rzp1.open();*@
-                //e.preventDefault();
             }
             else {
                 var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
@@ -580,15 +524,24 @@
              obj.id = user[0].CustomerID;
              obj.amt = user[0].ResellerAmount * parseInt($("#translationamount").val());
              obj.maxuser = $("#translationamount").val();
-             userAmount.push(obj);
+            userAmount.push(obj);
+            var razorAmount = 0;
+            $.each(userAmount, function (i, a) {
+                razorAmount += parseInt(a.amt)
+            })
+
+            $.get('/Home/RefeshRazorOrderId?amount=' + (user[0].ResellerAmount * parseInt($("#translationamount").val())) * 100, function (data) {
+                var jsonData = JSON.parse(data);
+                $("#razorOrderId").val(jsonData.orderId);
              loadScript('https://checkout.razorpay.com/v1/checkout.js').then(function () {
                 window.r = new Razorpay({
-                    key: 'rzp_test_4eINMyNiQesjcj',
+                     key: '@System.Configuration.ConfigurationManager.AppSettings["razorPayKey"].ToString()',
                     protocol: 'https',
                     hostname: 'api.razorpay.com',
                     amount: (user[0].ResellerAmount * parseInt($("#translationamount").val())) * 100,
                     name: user[0].CustomerName,
                     description: user[0].DeviceID,
+                    order_id: $("#razorOrderId").val(),
                     prefill: {
                         name: user[0].CustomerName,
                         email: user[0].emailid,
@@ -596,7 +549,6 @@
                     },
                     modal: {
                         "ondismiss": function () {
-                            debugger
                             $("#txtmaxUser").val("");
                             $("#translationamount").val("");
                             values = [];
@@ -617,6 +569,8 @@
                     }
                 });
                         r.open()
+             })
+
             });
                 }
     });
@@ -641,18 +595,7 @@
     tr {
         page-break-inside: avoid
     }
-    /*th {
-        max-width: 150px;
-        max-height: 150px;
-        overflow: hidden;
-        word-wrap: break-word;
-    }
-    td {
-        max-width: 150px;
-        max-height: 150px;
-        overflow: hidden;
-        word-wrap: break-word;
-    }*/
+
     .ui-datatable .ui-datatable-data > tr > td {
         overflow: hidden;
         text-overflow: ellipsis;

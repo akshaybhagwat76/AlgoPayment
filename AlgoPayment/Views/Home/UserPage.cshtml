@@ -101,7 +101,7 @@
                             <input type="text" min="5" @(Session["deviceID"] != null ? "disabled='disabled'" : "") value="@Session["deviceId"]" name="DeviceID" id="txtDeviceID" placeholder="Device ID" required="">
 
                             <label>Max User</label>
-                            <input type="text" onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')" value="@Session["maxUsers"]" name="maxUsers" id="txtmaxUsers" placeholder="Max users" required="">
+                            <input type="text" onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')" value="@Session["maxUsers"]" name="MaxUsers" id="txtmaxUsers" placeholder="Max users" required="">
 
                             <br />
                             <label>Amount Payable</label><br /><br />
@@ -359,6 +359,9 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.4.2/sha.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.serializeJSON/2.9.0/jquery.serializejson.min.js"></script>
+
+        
         <script>
             var OAUTHURL = 'https://accounts.google.com/o/oauth2/auth?';
             var VALIDURL = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=';
@@ -496,6 +499,21 @@
                 }
                 if ($("#txtmaxUsers").val() == null || $("#txtmaxUsers").val() == '') {
                     toastr.error('Max user required');
+                    return;
+                }
+                var isTrialUser = '@Session["deviceID"]';
+                if (isTrialUser == '' || isTrialUser==undefined ||isTrialUser==null) {
+                    var data = $('#paymentForm').serializeJSON();
+                    $.post('/Home/AddSevenDaysTrial', { request: JSON.stringify(data)}, function (data) {
+                        if (data != null || data!=undefined){
+                            if (data.data != '' && data.status == "Success") {
+                                location.href = '/Return/Success';
+                            }
+                            else {
+                                location.reload();
+                            }
+                        }
+                    });
                     return;
                 }
 
