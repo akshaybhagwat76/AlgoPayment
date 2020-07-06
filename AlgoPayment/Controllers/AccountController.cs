@@ -79,6 +79,29 @@ namespace AlgoPayment.Controllers
 
         }
 
+        [HttpGet]
+        public ActionResult ChangeUserCheckoutAmount(int amount)
+        {
+            try
+            {
+                //Helps to open the Root level web.config file.
+                Configuration webConfigApp = WebConfigurationManager.OpenWebConfiguration("~");
+
+                //Modifying the AppKey from AppValue to AppValue1
+                webConfigApp.AppSettings.Settings["UserSubscription"].Value = amount.ToString();
+
+                //Save the Modified settings of AppSettings.
+                webConfigApp.Save();
+                return Json(new { data = true, status = "Success" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { data = true, status = "Failed" }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
         public bool UpdateAccountActivation(int id)
         {
             UserDetail user = new UserDetail();

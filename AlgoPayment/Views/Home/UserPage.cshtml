@@ -90,6 +90,7 @@
 
 
             <div class="mail-w3l-agile">
+                <input type="hidden" id="orderId" name="orderId" value="@Session["razorPayOrderId"].ToString()" />
 
                 <div class="col-md-6 col-sm-6 agileinfo_mail_grid_right">
                     <h3>Extend Validity</h3>
@@ -98,8 +99,13 @@
                         <div class="wthree_contact_left_grid">
                             <label>Device ID</label>
                             <input type="text" min="5" @(Session["deviceID"] != null ? "disabled='disabled'" : "") value="@Session["deviceId"]" name="DeviceID" id="txtDeviceID" placeholder="Device ID" required="">
+
+                            <label>Max User</label>
+                            <input type="text" onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')" value="@Session["maxUsers"]" name="maxUsers" id="txtmaxUsers" placeholder="Max users" required="">
+
+                            <br />
                             <label>Amount Payable</label><br /><br />
-                            <input type="text" disabled value="750" name="Price" id="txtPrice" required="">
+                            <input type="text" disabled value="@Session["userAmount"]" name="Price" id="txtPrice" required="">
                             <input type="hidden" value="@Session["userId"]" id="txtCustomerID" name="CustomerID" />
                         </div>
                         <input type="button" id="btnPay" style=" margin-left: 9em;" class="w3l-cont scroll" value="Pay Now" />
@@ -368,7 +374,9 @@
             var user;
             var loggedIn = false;
             var fullaccess_token;
-            var window = null; var amount1 = 750 * 100;
+            var userAmount = '@Session["userAmount"]';
+
+            var window = null; var amount1 = userAmount * 100;
         </script>
         <script>
             var loadScript = function (path) {
@@ -399,13 +407,13 @@
             loadScript('https://checkout.razorpay.com/v1/checkout.js').then(function () {
                 var deviceId = $("#txtDeviceID").val();
                 window.r = new Razorpay({
-                    key: 'rzp_test_4eINMyNiQesjcj',
+                    key: '@System.Configuration.ConfigurationManager.AppSettings["razorPayKey"].ToString()',
                     protocol: 'https',
                     hostname: 'api.razorpay.com',
                     amount: amount1,
                     name: '@user.Name',
                     description: deviceId,
-                    order_id:'@Session["razorPayOrderId"].ToString()',
+                    order_id:$("#orderId").val(),
                     prefill: {
                         name: '@user.Name',
                         email:  '@user.emailid',
@@ -437,11 +445,57 @@
             });
              function getRandomInt() {
                   return Math.floor(100000 + Math.random() * 900000);
-             }
+            }
+
+            $(document).on("keyup", "#txtmaxUsers", function () {
+                var userAmountSub = '@System.Configuration.ConfigurationManager.AppSettings["UserSubscription"].ToString()';
+                if ($("#txtmaxUsers").val() > 0) {
+                    $("#txtPrice").val($("#txtmaxUsers").val() * userAmountSub);
+                    $.get('/Home/RefeshOrderId?maxUser=' + $("#txtmaxUsers").val(), function (data) {
+                        if (data != undefined && data != null) {
+                            var jsonData = JSON.parse(data);
+                            $("#orderId").val(jsonData.orderId);
+                            amount1 = jsonData.amount;
+
+                             window.r = new Razorpay({
+                                 key: '@System.Configuration.ConfigurationManager.AppSettings["razorPayKey"].ToString()',
+                                 protocol: 'https',
+                                 hostname: 'api.razorpay.com',
+                                 amount: jsonData.amount,
+                                 name: '@user.Name',
+                                 description: $("#txtDeviceID").val(),
+                                 order_id: jsonData.orderId,
+                                 prefill: {
+                                      name: '@user.Name',
+                                      email:  '@user.emailid',
+                                      contact:  '@user.Mobile'
+                                 },
+                                 handler: function (transaction) {
+                                        $.get('/Return/HandleRazorPay?deviceId=' + $("#txtDeviceID").val(), function (data) {
+                                            if (data != null) {
+                                                if (data.status == "Failed") {
+                                                    location.href = '/Return/Fail';
+                                                }
+                                                else {
+                                                    location.href = '/Return/Success';
+                                                }
+                                            }
+                                        });
+                                }
+                            });
+
+                        }
+                    });
+                }
+            });
 
             $("#btnPay").click(function () {
                 if ($("#txtDeviceID").val() == null || $("#txtDeviceID").val() == '') {
                     toastr.error('Device id required');
+                    return;
+                }
+                if ($("#txtmaxUsers").val() == null || $("#txtmaxUsers").val() == '') {
+                    toastr.error('Max user required');
                     return;
                 }
 
@@ -451,7 +505,7 @@
 
                     var merchantKey = '@System.Configuration.ConfigurationManager.AppSettings["key"]';
                     var uid = getRandomInt();
-                    var totalPrice = '750';
+                    var totalPrice = $("#txtPrice").val() ;
                     var productInfo = $("#txtDeviceID").val();
                     var recipient_name = user.Name + ',' + user.Id;
                     var email = user.emailid;
@@ -463,25 +517,15 @@
 
                     var key1 = $('<input></input>').attr('type', 'hidden').attr('name', "key").val(merchantKey);
                     var key2 = $('<input></input>').attr('type', 'hidden').attr('name', "txnid").val(uid);
-
                     var key3 = $('<input></input>').attr('type', 'hidden').attr('name', "amount").val(totalPrice);
-
                     var key4 = $('<input></input>').attr('type', 'hidden').attr('name', "productinfo").val(productInfo);
-
                     var key5 = $('<input></input>').attr('type', 'hidden').attr('name', "firstname").val(recipient_name);
-
                     var key6 = $('<input></input>').attr('type', 'hidden').attr('name', "email").val(email);
-
                     var key7 = $('<input></input>').attr('type', 'hidden').attr('name', "phone").val(user.Mobile);
-
                     var key8 = $('<input></input>').attr('type', 'hidden').attr('name', "surl").val(window.location.origin + '/Return/Return');
-
                     var key9 = $('<input></input>').attr('type', 'hidden').attr('name', "furl").val(window.location.origin + '/Return/Return');
-
                     var key10 = $('<input></input>').attr('type', 'hidden').attr('name', "hash").val(hash);
-
                     var key11 = $('<input></input>').attr('type', 'hidden').attr('name', "service_provider").val();
-
 
                     var form = $('<form/></form>');
 

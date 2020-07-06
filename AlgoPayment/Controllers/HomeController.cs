@@ -16,6 +16,8 @@ using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
 using Razorpay.Api;
+using System.Web.Script.Serialization;
+
 namespace AlgoPayment.Controllers
 {
     public class HomeController : BaseController
@@ -32,20 +34,25 @@ namespace AlgoPayment.Controllers
             return View();
         }
 
-
-        public ActionResult UserPage()
+        public string RefreshOrderId(int maxUser = 0)
         {
-
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             Dictionary<string, object> input = new Dictionary<string, object>();
-            input.Add("amount", 5000); // this amount should be same as transaction amount
+            input.Add("amount", maxUser > 0 ? (Convert.ToInt32(ConfigurationManager.AppSettings["UserSubscription"]) * maxUser) * 100 : 750 * 100); // this amount should be same as transaction amount
             input.Add("currency", "INR");
             input.Add("payment_capture", 1);
 
             RazorpayClient client = new RazorpayClient(ConfigurationManager.AppSettings["razorPayKey"], ConfigurationManager.AppSettings["razorPaySecret"]);
             Razorpay.Api.Order order = client.Order.Create(input);
             Session["razorPayOrderId"] = order["id"].ToString();
+            input.Add("orderId", order["id"].ToString());
+            string getJsonConvertedDictionary = (new JavaScriptSerializer()).Serialize(input);
+            return getJsonConvertedDictionary;
+        }
 
+        public ActionResult UserPage()
+        {
+            RefreshOrderId();
             using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
             {
                 var loggedInUser = (UserCredentials)(Session["UserCredentials"]);
@@ -57,6 +64,8 @@ namespace AlgoPayment.Controllers
                     if (algo != null)
                     {
                         Session["deviceID"] = algo.DeviceID;
+                        Session["maxUsers"] = algo.MaxUser;
+                        Session["userAmount"] = (Convert.ToInt32(algo.MaxUser) * Convert.ToInt32(ConfigurationManager.AppSettings["UserSubscription"]));
                         Session["userId"] = algo.CustomerID;
                         Session["userInfo"] = JsonConvert.SerializeObject(user);
                         Session["existingUser"] = true;
@@ -65,6 +74,7 @@ namespace AlgoPayment.Controllers
                     {
                         Session["userInfo"] = JsonConvert.SerializeObject(user);
                         Session["userId"] = user.Id;
+                        Session["userAmount"] = Convert.ToInt32(ConfigurationManager.AppSettings["UserSubscription"]);
                         Session["existingUser"] = false;
                     }
                 }
@@ -84,6 +94,16 @@ namespace AlgoPayment.Controllers
             return Json("Cleared", JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public JsonResult RefeshOrderId(int maxUser)
+        {
+            string tokanizeDictionary = RefreshOrderId(maxUser);
+            HttpCookie cookie = new HttpCookie("payumoney");
+            cookie.Expires = DateTime.Now.AddMinutes(10);
+            cookie.Value = maxUser.ToString();
+            Response.Cookies.Add(cookie);
+            return Json(tokanizeDictionary, JsonRequestBehavior.AllowGet);
+        }
 
         public ActionResult ResellerFail()
         {
@@ -193,6 +213,7 @@ namespace AlgoPayment.Controllers
                 {
                     user.CreatedDate = DateTime.Now;
                     user.UserRole = "client";
+                    
                     db.UserDetails.Add(user);
                     if (1 == db.SaveChanges())
                     {
@@ -283,31 +304,8 @@ namespace AlgoPayment.Controllers
                     obj.Mobile = item.Mobile;
                     obj.ResellerAmount = amount;
 
-                    //if (lst.Any(x => x.CustomerID != obj.CustomerID))
-                    //{
                     lst.Add(obj);
-
-                    //}
                 }
-
-                //var clients = (from n in db.AlgoExpiries
-                //               from u in db.UserDetails
-                //               from r in db.AppSettings
-                //               where n.CustomerID == u.Id && r.ResellerId == u.Id && u.UserRole == "reseller"
-                //               select new ResellerViewModel
-                //               {
-                //                   CustomerID = n.CustomerID,
-                //                   AppName = n.AppName,
-                //                   DateExpiry = n.DateExpiry,
-                //                   DeviceID = n.DeviceID,
-                //                   CustomerName = u.Name,
-                //                   emailid = u.emailid,
-                //                   City = u.City,
-                //                   Password = u.Password,
-                //                   State = u.State,
-                //                   Mobile = u.Mobile,
-                //                   ResellerAmount = r.Amount
-                //               }).DistinctBy(x => x.CustomerID).ToList();
                 ViewBag.lstResellers = lst;
             }
 
@@ -653,7 +651,7 @@ namespace AlgoPayment.Controllers
 
                                     if (categoryVM.DateExpiry.Contains("-"))
                                     {
-                                        categoryVM.DateExpiry= categoryVM.DateExpiry.Replace("-", "/");
+                                        categoryVM.DateExpiry = categoryVM.DateExpiry.Replace("-", "/");
                                     }
 
                                     DateTime date = DateTime.ParseExact(categoryVM.DateExpiry, "dd/MM/yyyy", CultureInfo.InvariantCulture);

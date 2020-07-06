@@ -146,7 +146,7 @@
             <div class="modal-body text-center">
                 <h4>Max users </h4>: <input type="number" class="form-control" min="1" max="9999999" id="txtmaxUser" />
 
-                                     <h4 style="display: block;">You will not be able to change the count of maximum users after you proceed.(Do refresh page to remove from cart)</h4>
+                <h4 style="display: block;">You will not be able to change the count of maximum users after you proceed.(Do refresh page to remove from cart)</h4>
             </div>
             <div class="modal-footer" style="text-align:center !important">
                 <button class="btn btn-default" id="addTocartCancel" onclick="cancel()" tabindex="2" data-dismiss="modal">No, cancel pls!</button>
@@ -254,7 +254,7 @@
 
             loadScript('https://checkout.razorpay.com/v1/checkout.js').then(function () {
                 window.r = new Razorpay({
-                    key: 'rzp_test_4eINMyNiQesjcj',
+                     key: '@System.Configuration.ConfigurationManager.AppSettings["razorPayKey"].ToString()',
                     protocol: 'https',
                     hostname: 'api.razorpay.com',
                     amount: totalAmount * 100,

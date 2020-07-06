@@ -60,6 +60,10 @@
                         </label>
 
                     </div>
+                    <br />
+
+                    <input type="text" onkeyup="if (/\D/g.test(this.value)) this.value = this.value.replace(/\D/g,'')" value="@System.Configuration.ConfigurationManager.AppSettings["UserSubscription"].ToString()" name="maxUsersAmount" id="txtmaxUsersAmount" placeholder="User Subscription amount" required="">
+
                 </div>
             </div>
         </div>
@@ -83,6 +87,21 @@
             }
         });
     }
+
+    $(document).on("focusout", "#txtmaxUsersAmount", function () {
+        if ($("#txtmaxUsersAmount").val() > 0) {
+            $.get('/Account/ChangeUserCheckoutAmount?amount=' + $("#txtmaxUsersAmount").val(), function (data) {
+                if (data != null) {
+                    if (data.status == "Failed") {
+                        toastr.error('Invalid credentials');
+                    }
+                    else {
+                        toastr.success('Setting changes successfully');
+                    }
+                }
+            });
+        }
+    });
 
     $("#btnLogout").click(function () {
         $.get('/Home/Logout', function (data) {
