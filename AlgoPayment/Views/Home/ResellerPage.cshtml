@@ -111,6 +111,9 @@
                         <a href="/Home/EditResellerClient/@person.CustomerID" data-id="@person.CustomerID" class="btn btn-primary">
                             Edit
                         </a>
+                        <button type="button" data-id="@person.CustomerID" data-maxuser="@person.MaxUser" data-amount="@m" data-deviceid="@person.DeviceID" data-cust="@person.CustomerID" class="btn btn-success" onclick="onAddUserClick(@person.CustomerID)">
+                            Add User
+                        </button>
                         <a data-id="@person.CustomerID" data-maxuser="@person.MaxUser" data-amount="@m" data-deviceid="@person.DeviceID" data-cust="@person.CustomerID" class="btn btn-success">
                             Add To Cart
                         </a>
@@ -167,6 +170,27 @@
 <script>
     var values = null; var totalAmount = 0; var oTable = null; var isCancelled = false; var isSubmitted1 = false; var isModel1 = false;
         var key = '@System.Configuration.ConfigurationManager.AppSettings["PaymentOption"].ToString()';
+
+    function onAddUserClick(id) {
+        var userInfo = JSON.parse('@Html.Raw(userInfoJson)');
+        var user = userInfo.find(x => x.CustomerID == id);
+        var formatDate = user.DateExpiry.split('-');
+        const currentDate = new Date();
+        const expDate = new Date(parseInt(formatDate[2]), parseInt(formatDate[1])-1, parseInt(formatDate[0]));
+        const diffTime = Math.abs(expDate - currentDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        var calAmount = (user.ResellerAmount / 30) * diffDays;
+        obj = {};
+        obj.id = user.CustomerID;
+        obj.amt = calAmount;
+        obj.maxuser = 1;
+        if (values == null) {
+            values = [];
+        }
+        values.push(obj);
+        toastr.success('Added to cart');
+    }
+
 
     function addToCart($this, id) {
         var ischecked = $('#' + $this.id).is(':checked');

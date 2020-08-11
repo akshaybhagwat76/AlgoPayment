@@ -1314,6 +1314,10 @@ a.w3_agile_google:hover{
 	filter: alpha(opacity=0);
 	transform: scale(1);
 }
+.forgot-password {
+	margin-left: 35%;
+	color: black
+}
 /*-- //slider-up-arrow --*/
 /*--responsive--*/
 

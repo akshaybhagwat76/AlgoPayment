@@ -1,5 +1,6 @@
 ﻿using AlgoPayment.Helpers;
 using AlgoPayment.Models;
+using AlgoPayment.VideModel;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
+using System.Web.UI.WebControls;
 
 namespace AlgoPayment.Controllers
 {
@@ -125,5 +127,94 @@ namespace AlgoPayment.Controllers
             }
         }
 
+        public ActionResult ForgotPassword()
+        {
+            return View();
+        }
+        // POST: /Account/ForgotPassword
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public ActionResult ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+                {
+                    var user = db.UserDetails.Where(o => o.emailid == model.Email).FirstOrDefault();
+                    if (user == null)
+                    {
+                        // Don't reveal that the user does not exist or is not confirmed
+                        return View("ForgotPasswordConfirmation");
+                    }
+                    var messagedata = new
+                    {
+                        email = user.emailid,
+                        url = System.Web.HttpContext.Current.Request.Url.Scheme + "://" + System.Web.HttpContext.Current.Request.Url.Authority,
+                        token = System.Web.HttpContext.Current.Server.UrlEncode(Security.Encrypt(user.Id.ToString()))
+                    };
+                    MailManager mm = new MailManager();
+                    String exMessage = mm.SendMail(user.emailid, Messages.PASSWORD_RESET, string.Format(Messages.PASSWORD_RESET_MESSAGE, messagedata.email, messagedata.url, messagedata.token));
+                    return RedirectToAction("ForgotPasswordConfirmation", "Account");
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        //
+        // GET: /Account/ResetPassword
+        [AllowAnonymous]
+        public ActionResult ResetPassword(string token)
+        {
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                ResetPasswordViewModel resetPassword = new ResetPasswordViewModel();
+                resetPassword.Token = token;
+                return View(resetPassword);
+            }
+            return Redirect("https://amibrokeralgo.in/Home/Index");
+        }
+
+        //
+        // POST: /Account/ResetPassword
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public ActionResult ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            string TokenDescrypt = Security.Decrypt(model.Token);
+            int.TryParse(TokenDescrypt, out int userId);
+            using (eponym_app_licenseEntities db = new eponym_app_licenseEntities())
+            {
+                var user = db.UserDetails.Find(userId);
+                if (user!=null)
+                {
+                    user.Password = model.Password;
+                    db.UserDetails.Attach(user);
+                    db.Entry(user).Property(x => x.Password).IsModified = true;
+                    db.SaveChanges();
+                }            
+            }
+            return RedirectToAction("ResetPasswordConfirmation", "Account");
+        }
+        // GET: /Account/ResetPasswordConfirmation
+        [AllowAnonymous]
+        public ActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
+        //
+        // GET: /Account/ForgotPasswordConfirmation
+        [AllowAnonymous]
+        public ActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
     }
 }
